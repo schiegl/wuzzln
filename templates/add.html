@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block head %}
+
+<title>wuzzln - Add Game</title>
+
+<style>
+	.game-entry-container {
+		display: flex;
+		flex-direction: row;
+		max-width: 800px;
+		margin: 0 auto;
+	}
+
+	.game-entry-side {
+		flex: 45%;
+		display: flex;
+		flex-direction: column;
+		row-gap: 10px;
+	}
+
+	.swap-position-container {
+		display: flex;
+		justify-content: center;
+		position: relative;
+		height: 0;
+	}
+
+	.swap-position-container button {
+		width: 24px;
+		height: 24px;
+		font-size: 18px;
+		padding: 0;
+		background: none;
+		cursor: pointer;
+	}
+
+	.score-container {
+		display: flex;
+		flex-direction: row;
+		column-gap: 10px;
+		font-size: 1.5em;
+	}
+
+	.score-container input {
+		font-size: 20px;
+		width: 50px;
+		height: 32px;
+		padding: 5px 10px 5px 10px;
+		flex: 1;
+		text-align: center;
+	}
+
+	.score-container button {
+		width: 50px;
+		font-size: 20px;
+		background: none;
+		cursor: pointer;
+		border: none;
+	}
+
+	.score-btn {
+		border-radius: var(--radius);
+	}
+	.score-btn:hover {
+		background-color: var(--bg-softer);
+	}
+	.score-btn:active {
+		background-color: var(--bg-soft);
+	}
+
+	@media (max-width: 600px) {
+		.game-entry-container {
+			flex-direction: column;
+		}
+	}
+</style>
+
+{% endblock head %}
+
+{% block main %}
+
+<form hx-post="/api/game/create">
+	<div class="game-entry-container">
+		<div class="game-entry-side">
+			<i class="ph ph-users" style="font-size: 48px; text-align: center;"></i>
+
+			<label for="defense_a"><i class="ph ph-shield"></i> Defense</label>
+			<select name="defense_a" id="defense_a" tabindex="1"></select>
+
+			<div class="swap-position-container">
+				<button type="button" onclick="swapPosition('a')">
+					<i class="ph ph-arrows-down-up"></i>
+				</button>
+			</div>
+
+			<label for="offense_a"><i class="ph ph-sword"></i> Offense</label>
+			<select name="offense_a" id="offense_a" tabindex="2"></select>
+
+			<label for="score_a"><i class="ph ph-soccer-ball"></i> Score</label>
+			<div class="score-container">
+				<button class="score-btn" type="button" onclick="changeScore('a',-5)" tabindex="-1">--</button>
+				<button class="score-btn" type="button" onclick="changeScore('a',-1)" tabindex="-1">-</button>
+				<input type="text" name="score_a" id="score_a" value="0" pattern="^1?\d$" tabindex="-1">
+				<button class="score-btn" type="button" onclick="changeScore('a',1)" tabindex="-1">+</button>
+				<button class="score-btn" type="button" onclick="changeScore('a',5)" tabindex="-1">++</button>
+			</div>
+		</div>
+
+		<div class="middle" style="margin: 30px;">
+			<button type="button" class="icon-btn" onclick="swapSides()" tabindex="-1">
+				<i class="ph ph-arrows-left-right"></i>
+			</button>
+		</div>
+
+		<div class="game-entry-side">
+			<i class="ph-fill ph-users" style="font-size: 48px; text-align: center;"></i>
+
+			<label for="defense_b"><i class="ph ph-shield"></i> Defense</label>
+			<select name="defense_b" id="defense_b" tabindex="3"></select>
+
+			<div class="swap-position-container">
+				<button type="button" onclick="swapPosition('b')">
+					<i class="ph ph-arrows-down-up"></i>
+				</button>
+			</div>
+
+			<label for="offense_b"><i class="ph ph-sword"></i> Offense</label>
+			<select name="offense_b" id="offense_b" tabindex="4"></select>
+
+			<label for="score_b"><i class="ph ph-soccer-ball"></i> Score</label>
+			<div class="score-container">
+				<button class="score-btn" type="button" onclick="changeScore('b',-5)" tabindex="-1">--</button>
+				<button class="score-btn" type="button" onclick="changeScore('b',-1)" tabindex="-1">-</button>
+				<input type="text" name="score_b" id="score_b" value="0" pattern="^1?\d$" tabindex="-1">
+				<button class="score-btn" type="button" onclick="changeScore('b',1)" tabindex="-1">+</button>
+				<button class="score-btn" type="button" onclick="changeScore('b',5)" tabindex="-1">++</button>
+			</div>
+		</div>
+
+	</div>
+	<div style="display: flex; flex-direction: row; gap: 20px; justify-content: center; align-items: center; width: 100%; padding: 5vh 0 0 0;">
+		<hr style="flex: 1">
+		<button class="icon-btn" type="submit" tabindex="-1">
+			<i class="ph-duotone ph-floppy-disk"></i>
+		</button>
+		<hr style="flex: 1">
+	</div>
+</form>
+
+{% if matchmakings %}
+	<div style="margin-top: 24px;">
+		<h2 style="text-align: center; font-style: italic; font-size: 1.1rem;">Recently generated matchups ...</h2>
+		{% with matchmakings=matchmakings, show_probability=true, on_click="setMatch" %}
+			{% include "matchmaking_fragment.html" %}
+		{% endwith %}
+	</div>
+{% endif %}
+
+<script>
+	var options = [{value: "", label: "", customProperties: {text: ""}}];
+	options = options.concat(Object.entries({{ player_name|safe }}).map(e => ({
+		value: e[0],
+		label: e[1],
+		customProperties: {
+			normalized: e[1].normalize("NFKD").replace(/\p{Diacritic}/gu, "")
+		}
+	})));
+
+	const conf = {
+		choices: options,
+		allowHTML: false,
+		fuseOptions: { threshold: 0.3 },
+		searchFields: ["label", "customProperties.normalized"]
+	};
+	const defense_a = new Choices("#defense_a", conf);
+	const offense_a = new Choices("#offense_a", conf);
+	const defense_b = new Choices("#defense_b", conf);
+	const offense_b = new Choices("#offense_b", conf);
+	const score_a = document.getElementById("score_a");
+	const score_b = document.getElementById("score_b");
+
+	function setMatch(def_a, off_a, def_b, off_b) {
+		defense_a.setChoiceByValue(def_a);
+		offense_a.setChoiceByValue(off_a);
+		defense_b.setChoiceByValue(def_b);
+		offense_b.setChoiceByValue(off_b);
+	}
+
+	function swapSides() {
+		let tmp_a = defense_a.getValue(true);
+		defense_a.setChoiceByValue(defense_b.getValue(true));
+		defense_b.setChoiceByValue(tmp_a);
+
+		tmp_a = offense_a.getValue(true);
+		offense_a.setChoiceByValue(offense_b.getValue(true));
+		offense_b.setChoiceByValue(tmp_a);
+
+		tmp_a = score_a.value;
+		score_a.value = score_b.value;
+		score_b.value = tmp_a;
+	}
+
+	function swapPosition(side) {
+		let def = side == "a" ? defense_a : defense_b
+		let off = side == "a" ? offense_a : offense_b
+		let tmp_def = def.getValue(true);
+		def.setChoiceByValue(off.getValue(true));
+		off.setChoiceByValue(tmp_def);
+	}
+
+	function changeScore(side, value) {
+		if (side == "a") {
+			score_a.value = Math.min(10, Math.max(0, parseInt(score_a.value) + value));
+		} else if (side == "b") {
+			score_b.value = Math.min(10, Math.max(0, parseInt(score_b.value) + value));
+		}
+	}
+</script>
+
+{% endblock main %}

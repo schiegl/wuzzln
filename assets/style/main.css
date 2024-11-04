@@ -1,0 +1,298 @@
+:root {
+	--bg: #fff;
+	--bg-soft: #f6f6f6;
+	--bg-softer: #fafafa;
+	--fg: #000;
+	--fg-soft: #333;
+	--fg-softer: #666;
+	--fg-softest: #aaa;
+	--border: #ccc;
+	--primary: #ff5400;
+	--primary-soft: #ff540099;
+	--primary-softer: #ff540022;
+	--radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #111;
+		--bg-soft: #1a1a1a;
+		--bg-softer: #161616;
+		--fg: #ddd;
+		--fg-soft: #aaa;
+		--fg-softer: #888;
+		--fg-softest: #555;
+		--border: #555;
+	}
+}
+
+::selection {
+	background: var(--primary-soft);
+}
+
+body {
+	background: var(--bg);
+	color: var(--fg);
+
+	font-family: "IBM Plex Sans", sans-serif;
+	height: 100%;
+	max-width: 760px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	min-height: 100vh;
+	padding: 5px;
+}
+
+h1, h2, h3, h4 {
+	font-weight: 500;
+}
+
+hr {
+	height: 1px;
+	background: var(--border);
+	border: none;
+}
+
+.middle {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	justify-content: center;
+}
+
+/* buttons */
+
+button {
+	background: var(--bg-soft);
+	color: var(--fg);
+	border: none;
+	border-radius: var(--radius);
+}
+
+button:hover {
+	background: var(--bg-softer);
+	transition: background-color 0.2s ease;
+}
+
+button:active {
+	color: var(--primary);
+	background-color: var(--primary-softer);
+}
+
+.icon-btn {
+	border: none;
+	padding: 12px;
+	font-size: 30px;
+	cursor: pointer;
+	height: 55px;
+	width: 55px;
+	border-radius: 50%;
+}
+
+.icon-btn:active {
+	rotate: 20deg;
+	transition: rotate 0.1s;
+}
+
+a {
+	color: var(--primary);
+}
+
+input {
+	background: var(--bg-2);
+	color: var(--fg);
+	border: none;
+	border-radius: var(--radius);
+	padding: 4px 2px 0 4px;
+	accent-color: var(--primary);
+}
+
+header {
+	margin: 10px 15px 48px 15px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+}
+
+@media (max-width: 600px) {
+	header {
+		flex-direction: column;
+		row-gap: 10px;
+	}
+}
+
+nav {
+	display: flex;
+	flex-direction: row;
+	column-gap: 25px;
+}
+
+main {
+	flex: 1;
+	padding: 3px;
+}
+
+footer {
+	display: flex;
+	flex-direction: row;
+	column-gap: 40px;
+	justify-content: center;
+	align-items: center;
+	min-height: 100px;
+}
+
+nav a, footer a {
+	text-decoration: none;
+	color: var(--fg);
+	display: flex;
+	align-items: center;
+	column-gap: 4px;
+}
+
+nav a:active, footer a:active {
+	color: var(--primary);
+}
+
+table {
+	border-collapse: collapse
+}
+
+.toast {
+	width: 300px;
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	max-height: 50vh;
+	border-radius: var(--radius);
+	padding: 20px;
+	box-shadow: 0px 17px 30px -9px rgba(0, 0, 0, 0.3);
+	display: flex;
+	flex-direction: row;
+	column-gap: 15px;
+}
+
+.toast .ph {
+	font-size: 20px;
+}
+
+.toast .message {
+	flex: 1;
+}
+
+[data-tooltip]::before {
+    /* needed - do not touch */
+    content: attr(data-tooltip);
+    position: absolute;
+    opacity: 0;
+
+    /* customizable */
+	font-size: 0.9rem;
+	font-weight: normal;
+    padding: 8px;
+    border-radius: var(--radius);
+	box-shadow: 0px 12px 12px -7px rgba(0, 0, 0, 0.2);
+}
+
+[data-tooltip]:hover::before {
+    /* needed - do not touch */
+    opacity: 1;
+
+    /* customizable */
+    background: var(--bg);
+	border: 1px solid var(--border);
+    margin-top: 28px;
+    margin-left: 18px;
+    transition: opacity 0.02s ease 1s;
+	z-index: 1;
+}
+
+[data-tooltip]:not([data-tooltip-persistent])::before {
+    pointer-events: none;
+}
+
+.level {
+	background: var(--bg-softer);
+	width: 160px;
+	height: 140px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	row-gap: 5px;
+	border-radius: var(--radius);
+}
+
+.level .title {
+	color: var(--fg-softer);
+	cursor: help;
+}
+
+.level .value {
+	font-size: 2rem;
+}
+
+/* Lots of ugly hacks to style choices.js */
+
+.choices, .choices > *, .choices *:not(.choices__button) {
+	background-color: var(--bg-soft) !important;
+	color: var(--fg) !important;
+	border: none !important;
+	border-radius: var(--radius);
+}
+
+.choices {
+	height: 2.5em;
+	margin-bottom: 0 !important;
+}
+
+.choices:focus {
+	outline: var(--primary) solid 2px;
+}
+
+.choices__input {
+	border-top: 1px dashed var(--border) !important;
+	border-bottom: 1px dashed var(--border) !important;
+	border-radius: 0px !important;
+}
+
+.choices__inner {
+	/* Fixes choices input being to big */
+	box-sizing: border-box;
+}
+
+/* not filter prevents shadow within box that shows selected results */
+.choices__list:not(.choices__list--single) {
+	box-shadow: 0px 17px 30px -9px rgba(0, 0, 0, 0.3);
+}
+
+/* little bubbles in multi select */
+.choices__list--multiple .choices__item {
+	background-color: var(--primary) !important;
+	color: #fff !important;
+}
+
+/* dropdown items */
+.choices__list--dropdown {
+	color: var(--fg);
+}
+
+.choices__list--dropdown .choices__input {
+	/*border-top: 1px solid var(--fg-softest) !important;*/
+	border-bottom: 1px dashed var(--fg-softest) !important;
+}
+
+.choices__list--dropdown .choices__item:hover {
+	background: var(--bg-softer) !important;
+}
+
+.choices__button {
+	border: none !important;
+}
+
+.choices__button:hover {
+	background: var(--primary) !important;
+}

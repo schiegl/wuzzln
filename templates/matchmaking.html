@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>wuzzln - Matchmaking</title>
+
+<style>
+	.choices {
+		margin-top: 10px;
+	}
+
+	.options {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-evenly;
+		column-gap: 10px;
+	}
+
+	fieldset {
+		border: 1px dashed var(--border);
+		border-radius: 3px;
+		flex-grow: 1;
+		margin-top: 20px;
+	}
+
+	@media (max-width: 600px) {
+		.options {
+			flex-direction: column;
+			row-gap: 15px;
+		}
+	}
+</style>
+
+{% endblock head %}
+
+{% block main %}
+
+<form hx-post="/api/matchmaking/create" hx-target="#matchmakings">
+	<label for="players"><i class="ph ph-user"></i> Players</label>
+	<select id="players" name="players" multiple></select>
+
+	<div class="options">
+		<fieldset>
+			<legend><i class="ph ph-function"></i> Method</legend>
+			<input type="radio" name="method" id="fair" value="fair" checked="checked">
+			<label for="fair" data-tooltip="Maximize likelihood of draws" style="cursor: help">fair</label>
+			<input type="radio" name="method" id="quite_fair" value="quite_fair">
+			<label for="quite_fair" data-tooltip="Randomly pick second or third fairest teams" style="cursor: help">quite fair</label>
+			<input type="radio" name="method" id="random" value="random">
+			<label for="random" data-tooltip="Assign players randomly" style="cursor: help">random</label>
+		</fieldset>
+
+		<fieldset>
+			<legend><i class="ph ph-sliders"></i> Options</legend>
+			<input type="checkbox" id="probability" name="probability" checked="checked">
+			<label for="probability">Show win probability</label>
+		</fieldset>
+	</div>
+
+
+	<div style="display: flex; flex-direction: row; gap: 20px; justify-content: center; align-items: center; width: 100%; padding: 5vh 0 0 0;">
+		<hr style="flex: 1">
+		<button class="icon-btn" type="submit">
+			<i class="ph-duotone ph-scales"></i>
+		</button>
+		<hr style="flex: 1">
+	</div>
+
+</form>
+
+<div id="matchmakings" style="margin-top: 20px;"></div>
+
+<script>
+	const options = Object.entries({{ player_name|safe }}).map(e => ({
+		value: e[0],
+		label: e[1],
+		customProperties: {
+			normalized: e[1].normalize("NFKD").replace(/\p{Diacritic}/gu, "")
+		}
+	}));
+
+	const conf = {
+		choices: options,
+		allowHTML: false,
+		fuseOptions: { threshold: 0.3 },
+		removeItemButton: true,
+		searchPlaceholderValue: "",
+		duplicateItemsAllowed: false,
+		singleModeForMultiSelect: true,
+		searchFields: ["label", "customProperties.normalized"]
+	};
+	const players_choice = new Choices("#players", conf);
+</script>
+
+{% endblock main %}

@@ -1,0 +1,69 @@
+<style>
+	.matches {
+		display: flex;
+		flex-direction: column;
+		/*row-gap: 20px;*/
+		padding: 20px 0 20px 0;
+		justify-content: center;
+		align-items: center;
+	}
+	.match {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		column-gap: 15px;
+		border-bottom: 1px dashed var(--border);
+		padding: 20px 25px 20px 25px;
+	}
+	.match:hover {
+		background: var(--bg-softer);
+		transition: background-color 0.2s ease;
+	}
+	.match .side {
+		display: flex;
+		flex-direction: column;
+		row-gap: 8px;
+		min-width: 100px;
+	}
+	.win-probability {
+		color: var(--fg-soft);
+		font-size: 90%;
+	}
+</style>
+
+<div class="matches">
+	<div style="display: flex; flex-direction: row; justify-content: center; column-gap: 70px; margin-bottom: 10px;">
+		<i class="side ph ph-users" style="font-size: 32px"></i>
+		<i class="side ph-fill ph-users" style="font-size: 32px"></i>
+	</div>
+	{% for m in matchmakings %}
+		<div class="match"
+			{% if on_click %}
+				style="cursor: pointer"
+				onclick="{{ on_click }}('{{ m.defense_a }}', '{{ m.offense_a }}', '{{ m.defense_b }}', '{{ m.offense_b }}')"
+			{% endif %}
+		>
+			{% if show_probability %}
+				<div class="win-probability middle">
+					<i class="ph {% if m.win_probability_a < 0.5 %}ph-trend-down{% else %}ph-trend-up{% endif %}"></i>
+					{{ (m.win_probability_a*100)|int }}%
+				</div>
+			{% endif %}
+			<div class="side" style="text-align: right">
+				<div>{{ player_name[m.defense_a] }} <i class="ph ph-shield"></i></div>
+				<div>{{ player_name[m.offense_a] }} <i class="ph ph-sword"></i></div>
+			</div>
+			<div class="middle" style="color: var(--fg-2); width: 20px;">vs</div>
+			<div class="side">
+				<div><i class="ph ph-shield"></i> {{ player_name[m.defense_b] }}</div>
+				<div><i class="ph ph-sword"></i> {{ player_name[m.offense_b] }}</div>
+			</div>
+			{% if show_probability %}
+				<div class="win-probability middle">
+					<i class="ph {% if m.win_probability_b < 0.5 %}ph-trend-down{% else %}ph-trend-up{% endif %}"></i>
+					{{ (m.win_probability_b*100)|int }}%
+				</div>
+			{% endif %}
+		</div>
+	{% endfor %}
+</div>

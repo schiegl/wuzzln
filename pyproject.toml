@@ -1,0 +1,26 @@
+[project]
+name = "wuzzln"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+
+# https://docs.astral.sh/ruff/rules/
+select = [
+    "E",   # flake8
+    "F",   # pyflakes
+    "I",   # isort
+    "S",   # bandit
+    "EXE", # flake8 executable
+]
+ignore = [
+    "D100",   # module docstring
+    "ANN003", # **kwargs annotation
+    "PTH123", # path.open
+	"S101", # assert
+	"S311", # random for crypto
+]
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "basic"

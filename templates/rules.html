@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>wuzzln - Rules</title>
+<style>
+	ol > li {
+		margin-bottom: 1vh;
+	}
+</style>
+{% endblock head %}
+
+{% block main %}
+
+<h1><i class="ph ph-books"></i> Rules</h1>
+
+The game rules are largely based on the <a href="https://www.kickerkult.de/Blog/Spielregeln-im-Tischfussball">rules</a> from the
+International Table Soccer Federation (ITSF). However, we added a few rules to spice things up. Below you will find the most important ones:
+
+<ol>
+	<li>If the ball passes the goal line it counts as a point (even if it bounces back out)</li>
+	<li>If a team scores a goal, their opponent gets the ball at their 5er row</li>
+	<li>If the ball falls off the table
+		<ul>
+			<li>Falls off in the middle: The ball is thrown in the middle</li>
+			<li>Otherwise: The ball is placed in the closest corner</li>
+		</ul>
+	</li>
+	<li>The ball must be passed twice within the 5er row before a round starts</li>
+	<li>If a team commits a foul, the oppenent gets the ball at their 5er row. The most important fouls are:
+		<ul>
+			<li>Scoring a goal before passing the ball twice within the starting team</li>
+			<li>Rotating a player more than 360° shortly before or after touching the ball</li>
+			<li>Strong impacts to the table, such that the opponent is distracted or the ball is deflected (e.g. moving the table)</li>
+		</ul>
+	</li>
+	<li>If the ball comes to a halt
+		<ul>
+			<li>Between the 5er rows: The team who lost the last point gets it (or it is rolled in again if no goals were scored yet)</li>
+			<li>Otherwise: The nearest defense gets the ball</li>
+		</ul>
+	</li>
+	<li>🩸 If a team loses with zero points
+		<ul>
+			<li>🐣 The team has a new player (<25 total games): You congratulate the winning team, or call them lucky (depending on your personality)</li>
+			<li>Otherwise: The team has to crawl under the table... and call them lucky</li>
+		</ul>
+	</li>
+	<li>If a lower ranking player challenges higher ranking player
+		<ul>
+			<li>The higher ranking player declines: The lower ranking player wins 5:1</li>
+			<li>The higher ranking player has legitimately no time: Nothing happens</li>
+			<li>The lower ranking challenged the higher ranking player already this: Wait for the next day, unless it's last day of the season</li>
+			<li>The lower ranking player can also pick the side</li>
+		</ul>
+	</li>
+</ol>
+
+{% endblock main %}

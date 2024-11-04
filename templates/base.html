@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽️</text></svg>">
+
+		<!-- for offline development -->
+		<!--<link href="https://fonts.cdnfonts.com/css/ibm-plex-sans" rel="stylesheet">-->
+		<!--<script src="/js/htmx.js" crossorigin="anonymous"></script>-->
+		<!--<script src="/js/choices.min.js"></script>-->
+		<!--<link rel="stylesheet" href="/style/choices.min.css">-->
+		<!--<link rel="stylesheet" href="/font/phosphor-icons/regular/style.css">-->
+		<!--<link rel="stylesheet" href="/font/phosphor-icons/duotone/style.css">-->
+		<!--<link rel="stylesheet" href="/font/phosphor-icons/fill/style.css">-->
+
+		<link rel="stylesheet" href="/style/main.css">
+
+		<link href="https://fonts.cdnfonts.com/css/ibm-plex-sans" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@11.0.2/public/assets/styles/choices.min.css">
+		<script src="https://unpkg.com/@phosphor-icons/web"></script>
+		<script src="https://unpkg.com/htmx.org@2.0.3" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/choices.js@11.0.2/public/assets/scripts/choices.min.js"></script>
+
+		{% block head %}{% endblock head %}
+	</head>
+	<body>
+		<header>
+			<a href="/"><img src="/img/logo.png" style="height: 48px"></a>
+			<nav>
+				<a href="/games"><i class="ph-duotone ph-soccer-ball"></i> Games</a>
+				<a href="/add"><i class="ph-duotone ph-floppy-disk"></i> Add</a>
+				<a href="/matchmaking"><i class="ph-duotone ph-scales"></i> Matchmaking</a>
+			</nav>
+		</header>
+		<main>
+			{% block main %}{% endblock main %}
+		</main>
+		<footer>
+			<a href="https://github.com/schiegl/wuzzln"><i class="ph ph-github-logo"></i> Code</a>
+			<a href="/rules"><i class="ph ph-books"></i> Rules</a>
+		</footer>
+		<div id="toast"></div>
+	</body>
+</html>

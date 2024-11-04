@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>wuzzln - {{ name }}</title>
+
+<style>
+	.profile {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		row-gap: 12px;
+	}
+
+	h1 {
+		margin: 0 0 40px 0;
+	}
+</style>
+
+{% endblock head %}
+
+{% block main %}
+
+<section class="profile">
+	<img style="height: 64px" src="/img/rank/{{ rank.name|lower }}.png">
+	<h1>{{ name }}</h1>
+
+	<div style="display: flex; flex-direction: row; justify-content: center; column-gap: 20px; row-gap: 20px; flex-wrap: wrap;">
+		<div class="level">
+			<span class="value">{{ defense_skill|round(1) }}</span>
+			<span class="title" data-tooltip="Current defense rating">
+				<i class="ph ph-shield"></i> Defense
+			</span>
+		</div>
+		<div class="level">
+			<span class="value">{{ offense_skill|round(1) }}</span>
+			<span class="title" data-tooltip="Current offense rating">
+				<i class="ph ph-sword"></i> Offense
+			</span>
+		</div>
+		<div class="level">
+			<span class="value">{{ best_skill|round(1) }}</span>
+			<span class="title" data-tooltip="Best overall rating ever achieved">
+				<i class="ph ph-trend-up"></i> Best Rating
+			</span>
+		</div>
+		<div class="level">
+			<span class="value">{{ total_games }}</span>
+			<span class="title" data-tooltip="Number of recorded games played across all seasons">
+				<i class="ph ph-soccer-ball"></i> Total Games
+			</span>
+		</div>
+	</div>
+</section>
+
+
+<section>
+	<div id="season-skill-chart"></div>
+</section>
+
+<!--import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm";-->
+<script type="module">
+	import * as Plot from "/js/observablehq-plot.min.js";
+
+	const allSeasonsRatings = {{ all_seasons_ratings|safe }}
+	const plot = Plot.plot({
+	  marks: [
+		Plot.ruleY([0]),
+		Plot.lineY(allSeasonsRatings, {x: "season", y: "rating"}),
+	  ]
+	})
+	document.getElementById("season-skill-chart").append(plot);
+</script>
+
+{% endblock %}

@@ -1,0 +1,9 @@
+<div onclick="this.remove()" id="toast" class="toast" style="color: {{ font_color }}; background: {{ background }}">
+	<div class="ph ph-{{ icon }}"></div>
+	<div class="message">{{ message|safe|e }}</div>
+</div>
+<script>
+	setTimeout(() => {
+		document.getElementById("toast").innerHTML = "";
+	}, 5000);
+</script>

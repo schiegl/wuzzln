@@ -1,0 +1,84 @@
+<style>
+	.games {
+		width: 100%;
+	}
+	.games tbody tr:nth-child(odd) {
+		background: var(--bg-softer);
+	}
+	.games tbody tr:hover {
+		background: var(--bg-soft);
+	}
+	.games tbody tr {
+		height: 3.9rem;
+	}
+	.games tbody td:nth-child(1) {
+		width: 20%;
+		text-align: center;
+		font-size: 0.9rem;
+		color: var(--fg-soft);
+	}
+	.games tbody td:nth-child(2), td:nth-child(3) {
+		width: 32%;
+	}
+	.games tbody td:nth-child(4) {
+		text-align: center;
+	}
+	.games tbody td:nth-child(5) {
+		text-align: center;
+	}
+	.games th {
+		text-align: left;
+		border-bottom: 1px solid var(--border);
+		padding: 0.3em;
+	}
+	.games .team > div {
+		padding: 2px 0 2px 8px;
+	}
+	.games .delete-btn {
+		border: none;
+		font-size: 22px;
+		background: none;
+		cursor: pointer;
+	}
+</style>
+
+<table class="games">
+	<thead>
+		<tr>
+			<th style="text-align: center">Date</th>
+			<th>Team <i class="ph ph-users"></i></th>
+			<th>Team <i class="ph-fill ph-users"></i></th>
+			<th style="text-align: center">Score</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody hx-target="closest tr" hx-swap="delete">
+	  {% for g in games %}
+		<tr>
+			<td>{{ g.pretty_date() }}</td>
+			<td class="team">
+				{% if g.defense_a == g.offense_a %}
+					<div><i class="ph ph-user"></i> {{ player_name[g.defense_a] }}</div>
+				{% else %}
+					<div><i class="ph ph-shield"></i> {{ player_name[g.defense_a] }}</div>
+					<div><i class="ph ph-sword"></i> {{ player_name[g.offense_a] }}</div>
+				{% endif %}
+			</td>
+			<td class="team">
+				{% if g.defense_a == g.offense_a %}
+					<div><i class="ph ph-user"></i> {{ player_name[g.defense_b] }}</div>
+				{% else %}
+					<div><i class="ph ph-shield"></i> {{ player_name[g.defense_b] }}</div>
+					<div><i class="ph ph-sword"></i> {{ player_name[g.offense_b] }}</div>
+				{% endif %}
+			</td>
+			<td>{{ g.score_a }} : {{ g.score_b }}</td>
+			<td>
+				{% if g.timestamp > delete_timestamp_threshold %}
+					<button class="ph ph-trash delete-btn" hx-delete="/api/game/delete/{{ g.id }}"></button>
+				{% endif %}
+			</td>
+		</tr>
+	  {% endfor %}
+	</tbody>
+</table>
