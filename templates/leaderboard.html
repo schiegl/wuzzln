@@ -4,66 +4,66 @@
 <title>wuzzln - Leaderboard</title>
 
 <style>
-	table {
+	.leaderboard {
 		width: 100%;
 	}
 
 	/* row color */
-	tbody tr:nth-child(odd) {
+	.leaderboard tbody tr:nth-child(odd) {
 		background: var(--bg-softer);
 	}
-	tbody tr:hover {
+	.leaderboard tbody tr:hover {
 		background: var(--bg-soft);
 		transition: background-color 0.05s ease;
 	}
 
 	/* row size */
-	tbody tr { font-size: 0.8rem; }
-	tbody tr:nth-child(-n + 9) { font-size: 1rem; }
-	tbody tr:nth-child(-n + 3) { font-size: 1.5rem; }
+	.leaderboard tbody tr { font-size: 0.8rem; }
+	.leaderboard tbody tr:nth-child(-n + 9) { font-size: 1rem; }
+	.leaderboard tbody tr:nth-child(-n + 3) { font-size: 1.5rem; }
 
 	/* rank column */
-	th:nth-child(1), td:nth-child(1) {
+	.leaderboard th:nth-child(1), td:nth-child(1) {
 		text-align: center;
 		width: 60px;
 	}
 	/* name column */
-	th:nth-child(2), td:nth-child(2) {
+	.leaderboard th:nth-child(2), td:nth-child(2) {
 		text-align: left;
 	}
 	/* rating column */
-	th:nth-child(3), td:nth-child(3) {
+	.leaderboard th:nth-child(3), td:nth-child(3) {
 		text-align: center;
 		width: 90px;
 	}
-	td:nth-child(3) {
+	.leaderboard td:nth-child(3) {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		cursor: help;
 	}
-	.emblem {
+	.leaderboard .emblem {
 		flex: 50%;
 	}
-	.emblem img {
+	.leaderboard .emblem img {
 		height: 1.2em;
 		vertical-align: middle;
 		margin-bottom: 1px;
 	}
-	.skill {
+	.leaderboard .skill {
 		flex: 50%;
 		text-align: left;
 	}
 	/* diff column */
-	th:nth-child(4), td:nth-child(4) {
+	.leaderboard th:nth-child(4), td:nth-child(4) {
 		text-align: center;
 		width: 60px;
 	}
-	td:nth-child(4) {
+	.leaderboard td:nth-child(4) {
 		font-size: max(0.8rem, 0.8em);
 	}
 
-	th {
+	.leaderboard th {
 		border-bottom: 1px solid var(--border);
 		padding: 0.3em 0 0.3em 0;
 	}
@@ -72,13 +72,12 @@
 	}
 	td a {
 		display: block;
-		width: 100%;
 		height: 100%;
 		color: unset;
 		text-decoration: none;
 	}
 
-	.badge {
+	.leaderboard .badge {
 		cursor: help;
 		margin-left: 0.2em;
 	}
@@ -92,13 +91,13 @@
 {% endblock head %}
 
 {% block main %}
-<table>
+<table class="leaderboard">
 	<thead>
 		<tr>
 			<th>Rank</th>
 			<th>Name</th>
 			<th style="cursor: help" data-tooltip="Ratings are calculated using TrueSkill 1">Rating</th>
-			<th style="cursor: help" data-tooltip="Rating gain/loss from last game">+/-</th>
+			<th>+/-</th>
 		</tr>
 	</thead>
 	<tbody>
