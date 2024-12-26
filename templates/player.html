@@ -15,6 +15,28 @@
 	h1 {
 		margin: 0 0 40px 0;
 	}
+
+	.level {
+		background: var(--bg-softer);
+		width: 160px;
+		height: 140px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		row-gap: 5px;
+		border-radius: var(--radius);
+	}
+
+	.level .title {
+		color: var(--fg-softer);
+		cursor: help;
+	}
+
+	.level .value {
+		font-size: 2rem;
+	}
+
 </style>
 
 {% endblock head %}
@@ -25,7 +47,7 @@
 	<img style="height: 64px" src="/img/rank/{{ rank.name|lower }}.png">
 	<h1>{{ name }}</h1>
 
-	<div style="display: flex; flex-direction: row; justify-content: center; column-gap: 20px; row-gap: 20px; flex-wrap: wrap;">
+	<div style="display: flex; flex-direction: row; justify-content: center; gap: 20px; flex-wrap: wrap;">
 		<div class="level">
 			<span class="value">{{ defense_skill|round(1) }}</span>
 			<span class="title" data-tooltip="Current defense rating">

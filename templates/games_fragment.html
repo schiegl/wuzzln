@@ -34,6 +34,10 @@
 	.games .team > div {
 		padding: 2px 0 2px 8px;
 	}
+	.games .team > div a {
+		color: unset;
+		text-decoration: none;
+	}
 	.games .delete-btn {
 		border: none;
 		font-size: 22px;
@@ -58,18 +62,18 @@
 			<td>{{ g.pretty_date() }}</td>
 			<td class="team">
 				{% if g.defense_a == g.offense_a %}
-					<div><i class="ph ph-user"></i> {{ player_name[g.defense_a] }}</div>
+				<div><i class="ph ph-user"></i> <a href="/player/{{ g.defense_a }}">{{ player_name[g.defense_a] }}</a></div>
 				{% else %}
-					<div><i class="ph ph-shield"></i> {{ player_name[g.defense_a] }}</div>
-					<div><i class="ph ph-sword"></i> {{ player_name[g.offense_a] }}</div>
+				<div><i class="ph ph-shield"></i> <a href="/player/{{ g.defense_a }}">{{ player_name[g.defense_a] }}</a></div>
+				<div><i class="ph ph-sword"></i> <a href="/player/{{ g.offense_a }}">{{ player_name[g.offense_a] }}</a></div>
 				{% endif %}
 			</td>
 			<td class="team">
 				{% if g.defense_a == g.offense_a %}
-					<div><i class="ph ph-user"></i> {{ player_name[g.defense_b] }}</div>
+				<div><i class="ph ph-user"></i> <a href="/player/{{ g.defense_b }}">{{ player_name[g.defense_b] }}</a></div>
 				{% else %}
-					<div><i class="ph ph-shield"></i> {{ player_name[g.defense_b] }}</div>
-					<div><i class="ph ph-sword"></i> {{ player_name[g.offense_b] }}</div>
+				<div><i class="ph ph-shield"></i> <a href="/player/{{ g.defense_b }}">{{ player_name[g.defense_b] }}</a></div>
+				<div><i class="ph ph-sword"></i> <a href="/player/{{ g.offense_b }}">{{ player_name[g.offense_b] }}</a></div>
 				{% endif %}
 			</td>
 			<td>{{ g.score_a }} : {{ g.score_b }}</td>

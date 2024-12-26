@@ -11,7 +11,7 @@ from wuzzln.database import exists
 from wuzzln.rating import compute_ratings, get_rank
 
 
-@get("/player")
+@get("/player/{id: str}")
 async def get_player_page(id: PlayerId, db: sqlite3.Connection, state: State) -> Response:
     player = id
     if not exists(db, "player", "id", player):

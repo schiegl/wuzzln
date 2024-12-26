@@ -10,7 +10,7 @@
 	--primary: #ff5400;
 	--primary-soft: #ff540099;
 	--primary-softer: #ff540022;
-	--radius: 4px;
+	--radius: 6px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,6 +47,14 @@ body {
 
 h1, h2, h3, h4 {
 	font-weight: 500;
+}
+
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.45;
 }
 
 hr {
@@ -111,7 +119,7 @@ input {
 }
 
 header {
-	width: 100%;
+	width: calc(100% - 16px);
 	max-width: 720px;
 	margin: 16px 0 36px 0;
 	display: flex;
@@ -120,17 +128,23 @@ header {
 	justify-content: space-between;
 }
 
-@media (max-width: 500px) {
-	header {
-		flex-direction: column;
-		row-gap: 10px;
-	}
-}
-
 nav {
+	max-width: 100%;
 	display: flex;
 	flex-direction: row;
 	column-gap: 25px;
+	row-gap: 10px;
+	flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+	header {
+		flex-direction: column;
+		gap: 20px;
+	}
+	nav {
+		justify-content: center;
+	}
 }
 
 main {
@@ -222,26 +236,6 @@ table {
     pointer-events: none;
 }
 
-.level {
-	background: var(--bg-softer);
-	width: 160px;
-	height: 140px;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	row-gap: 5px;
-	border-radius: var(--radius);
-}
-
-.level .title {
-	color: var(--fg-softer);
-	cursor: help;
-}
-
-.level .value {
-	font-size: 2rem;
-}
 
 /* Lots of ugly hacks to style choices.js */
 

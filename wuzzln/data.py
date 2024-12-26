@@ -71,9 +71,6 @@ def clean_id(string: str) -> str:
     return re.sub(r"[^a-z0-9_]", "", norm_str)
 
 
-def get_season(now: Optional[Timestamp] = None) -> SeasonId:
-    if now is None:
-        now_dt = datetime.now()
-    else:
-        now_dt = datetime.fromtimestamp(now)
-    return f"{now_dt.year}-{(now_dt.month - 1) // 3 + 1}"
+def get_season(now: datetime | None = None) -> SeasonId:
+    now = now or datetime.now()
+    return f"{now.year}-{(now.month - 1) // 3 + 1}"
