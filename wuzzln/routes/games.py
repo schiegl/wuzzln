@@ -15,8 +15,8 @@ class HistoryGame(Game):
 
 
 @get("/games")
-async def get_games_page(db: sqlite3.Connection) -> Template:
-    season = get_season()
+async def get_games_page(db: sqlite3.Connection, now: datetime) -> Template:
+    season = get_season(now)
     query = "SELECT * FROM game WHERE season = ? ORDER BY timestamp DESC"
     games = [HistoryGame(*row) for row in db.execute(query, (season,))]
     player_name = dict(db.execute("SELECT id, name FROM player"))

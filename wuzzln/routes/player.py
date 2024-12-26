@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 
 from litestar import get
 from litestar.datastructures.state import State
@@ -12,14 +13,14 @@ from wuzzln.rating import compute_ratings, get_rank
 
 
 @get("/player/{id: str}")
-async def get_player_page(id: PlayerId, db: sqlite3.Connection, state: State) -> Response:
+async def get_player_page(id: PlayerId, db: sqlite3.Connection, now: datetime) -> Response:
     player = id
     if not exists(db, "player", "id", player):
         raise NotFoundException("Player does not exist")
 
     # rating history
     query = "SELECT * FROM game WHERE season = ? ORDER BY timestamp"
-    season_games = tuple(Game(*row) for row in db.execute(query, (get_season(),)))
+    season_games = tuple(Game(*row) for row in db.execute(query, (get_season(now),)))
     season_ratings = compute_ratings(season_games)
     player_ratings_season = [r for r in season_ratings if r.player == player]
 

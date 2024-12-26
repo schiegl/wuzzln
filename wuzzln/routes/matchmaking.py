@@ -1,8 +1,8 @@
 import random
 import sqlite3
-import time
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import datetime
 from itertools import combinations
 from typing import Annotated, Literal, Sequence
 
@@ -59,6 +59,7 @@ async def post_matchmaking(
     data: Annotated[MatchmakingTaskDTO, Body(media_type=RequestEncodingType.URL_ENCODED)],
     db: sqlite3.Connection,
     state: State,
+    now: datetime,
 ) -> Template:
     players = data.players
     if len(players) < 2:
@@ -71,7 +72,7 @@ async def post_matchmaking(
         return toast.error("Unknown player")
 
     query = "SELECT * FROM game WHERE season = ? ORDER BY timestamp"
-    season_games = tuple(Game(*row) for row in db.execute(query, (get_season(),)))
+    season_games = tuple(Game(*row) for row in db.execute(query, (get_season(now),)))
     defense, offense = get_rating(season_games, players)
 
     match data.method:
@@ -85,14 +86,13 @@ async def post_matchmaking(
 
     # build matchups
     matchmakings = []
-    now = time.time()
     for (def_a, off_a), (def_b, off_b) in combinations(teams, 2):
         rat_a = (defense[def_a], offense[off_a])
         rat_b = (defense[def_b], offense[off_b])
         win_prob = win_probability(rat_a, rat_b)
         # TODO: add whether this is a rank up game
         m = Matchmaking(
-            now,
+            now.timestamp(),
             players[def_a],
             players[off_a],
             players[def_b],

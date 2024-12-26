@@ -2,7 +2,7 @@ import re
 import unicodedata
 from datetime import datetime
 from enum import Enum
-from typing import NamedTuple, Optional
+from typing import NamedTuple
 
 type PlayerId = str
 type Team = tuple[PlayerId, PlayerId]
@@ -71,6 +71,5 @@ def clean_id(string: str) -> str:
     return re.sub(r"[^a-z0-9_]", "", norm_str)
 
 
-def get_season(now: datetime | None = None) -> SeasonId:
-    now = now or datetime.now()
+def get_season(now: datetime) -> SeasonId:
     return f"{now.year}-{(now.month - 1) // 3 + 1}"

@@ -22,11 +22,11 @@ class Award:
     player: PlayerId
 
 
-def get_game_score_awards(games: Iterable[Game], prior_games: dict[PlayerId, int]) -> list[Award]:
+def get_player_awards(games: Iterable[Game], prior_game_count: dict[PlayerId, int]) -> list[Award]:
     """Get all awards that relate to the game scores
 
     :param games: list of games
-    :param prior_games: games each player played prior to the current games
+    :param prior_game_count: games each player played prior to the current games
     :return: list of awards
     """
     total_games = defaultdict(int)
@@ -55,14 +55,16 @@ def get_game_score_awards(games: Iterable[Game], prior_games: dict[PlayerId, int
             if (
                 score == 0
                 and other_score > 0
-                and all(total_games.get(p, 0) + prior_games.get(p, 0) >= 25 for p in players)
+                and all(total_games.get(p, 0) + prior_game_count.get(p, 0) >= 25 for p in players)
             ):
                 for p in players:
                     total_crawls[p] += 1
             if (
                 other_score == 0
                 and score > 0
-                and all(total_games.get(p, 0) + prior_games.get(p, 0) >= 25 for p in other_players)
+                and all(
+                    total_games.get(p, 0) + prior_game_count.get(p, 0) >= 25 for p in other_players
+                )
             ):
                 for p in players:
                     total_let_crawls[p] += 1
@@ -102,42 +104,44 @@ def get_game_score_awards(games: Iterable[Game], prior_games: dict[PlayerId, int
     return awards
 
 
-def get_wrapped_season(ctx: Mapping[str, Any] | None = None) -> SeasonId | None:
-    """Get last season if only week ago.
+def is_season_start(ctx: Mapping[str, Any] | None = None) -> bool:
+    """Check if season start.
 
     :param ctx: context of jinja template
-    :return: season id
+    :return: true if new season
     """
+    # TODO: replace with now
     now = datetime(year=2024, month=10, day=7)
     now_season = get_season(now)
     week_ago_season = get_season(now - timedelta(days=7))
-    if now_season != week_ago_season:
-        return week_ago_season
+    return now_season != week_ago_season
 
 
-def wrapped_guard(connection: ASGIConnection, route_handler: BaseRouteHandler):
+def season_start_guard(connection: ASGIConnection, route_handler: BaseRouteHandler):
     """Check if in wrapped period."""
-    wrapped_season = get_wrapped_season()
-    if wrapped_season is None:
+    if not is_season_start():
         raise NotAuthorizedException("This is a seasonal thing :)")
 
 
-@get("/wrapped/{season:str}", guards=[wrapped_guard])
-async def get_wrapped_page(season: SeasonId, db: sqlite3.Connection) -> Template:
-    query = "SELECT * FROM game WHERE season = ? ORDER BY timestamp"
-    season_games = tuple(Game(*row) for row in db.execute(query, (season,)))
+@get("/wrapped", guards=[season_start_guard])
+async def get_wrapped_page(db: sqlite3.Connection, now: datetime) -> Template:
+    prev_season = get_season(now)
 
-    pre_season_games = defaultdict(
+    query = "SELECT * FROM game WHERE season = ? ORDER BY timestamp"
+    season_games = tuple(Game(*row) for row in db.execute(query, (prev_season,)))
+
+    prior_game_count = defaultdict(
         int, db.execute("SELECT player, count(*) FROM rating GROUP BY player")
     )
-
-    awards = get_game_score_awards(season_games, pre_season_games)
+    awards = get_player_awards(season_games, prior_game_count)
 
     # TODO: most increase in games
+    # TODO: total games, number of people who participated (+ change from last year)
+    #       avg game increase per person, rating distribution changes???
 
     player_name = dict(db.execute("SELECT id, name FROM player"))
 
     return Template(
         "wrapped.html",
-        context={"player_name": player_name, "season": season, "awards": awards},
+        context={"player_name": player_name, "season": "", "awards": awards},
     )

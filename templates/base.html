@@ -32,8 +32,8 @@
 				<a href="/games"><i class="ph-duotone ph-soccer-ball"></i> Games</a>
 				<a href="/add"><i class="ph-duotone ph-floppy-disk"></i> Add</a>
 				<a href="/matchmaking"><i class="ph-duotone ph-scales"></i> Matchmaking</a>
-				{% if get_wrapped_season() is not none %}
-				<a href="/wrapped/{{ get_wrapped_season() }}" style="color: var(--primary)"><i class="ph-duotone ph-gift"></i> Wrapped</a>
+				{% if is_season_start() %}
+				<a href="/wrapped" style="color: var(--primary)"><i class="ph-duotone ph-gift"></i> Wrapped</a>
 				{% endif %}
 			</nav>
 		</header>

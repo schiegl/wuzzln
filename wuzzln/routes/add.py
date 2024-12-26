@@ -1,6 +1,6 @@
 import sqlite3
-import time
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import Annotated
 from uuid import uuid4
 
@@ -16,9 +16,11 @@ from wuzzln.database import exists, insert
 
 
 @get("/add")
-async def get_add_game_page(db: sqlite3.Connection, state: ImmutableState) -> Template:
+async def get_add_game_page(
+    db: sqlite3.Connection, now: datetime, state: ImmutableState
+) -> Template:
     player_name = dict(db.execute("SELECT id, name FROM player WHERE active = true"))
-    hour_ago = time.time() - 3600
+    hour_ago = (now - timedelta(hours=1)).timestamp()
     matchups = [m for m in state["matchmakings"] if m.timestamp > hour_ago]
     return Template("add.html", context={"player_name": player_name, "matchmakings": matchups})
 
@@ -35,8 +37,8 @@ class GameDTO:
 
 # using 200 instead of 204 so we can return an empty response for htmx DOM swap
 @delete("/api/game/delete/{id:str}", status_code=200)
-async def delete_game(id: str, db: sqlite3.Connection) -> Response:
-    ten_min_ago = time.time() - 60 * 10
+async def delete_game(id: str, db: sqlite3.Connection, now: datetime) -> Response:
+    ten_min_ago = (now - timedelta(minutes=10)).timestamp()
     db.execute("DELETE FROM game WHERE id = ? AND timestamp > ?", (id, ten_min_ago))
     db.commit()
     return Response("")
@@ -46,6 +48,7 @@ async def delete_game(id: str, db: sqlite3.Connection) -> Response:
 async def add_game(
     data: Annotated[GameDTO, Body(media_type=RequestEncodingType.URL_ENCODED)],
     db: sqlite3.Connection,
+    now: datetime,
 ) -> Template:
     g = data
     if not (0 <= g.score_a <= 10 and 0 <= g.score_b <= 10):
@@ -71,9 +74,9 @@ async def add_game(
 
     game = Game(
         str(uuid4()),
-        time.time(),
+        now.timestamp(),
         "org",  # FIXME: organization placeholder
-        get_season(),
+        get_season(now),
         def_a,
         off_a,
         def_b,

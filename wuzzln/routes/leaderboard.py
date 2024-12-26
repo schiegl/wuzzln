@@ -1,11 +1,10 @@
 import sqlite3
-import time
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import Mapping, NamedTuple, Sequence
 
 from litestar import get
-from litestar.datastructures.state import State
 from litestar.response import Template
 
 from wuzzln.data import Game, PlayerId, Rank, get_season
@@ -70,12 +69,14 @@ def add_badges_(
     leaderboard: Mapping[PlayerId, LeaderboardEntry],
     season_games: Sequence[Game],
     pre_season_games: dict[PlayerId, int],
+    now: datetime,
 ):
     """Add badges to leaderboard in-place.
 
     :param leaderboard: all players in current leaderboard
     :param season_games: games of the current season
     :param pre_season_games: total number of games played in all previous seasons
+    :param now: current time
     """
     # one-trick pony
     if leaderboard:
@@ -93,7 +94,7 @@ def add_badges_(
     crawled = defaultdict(int)
     total_games = defaultdict(int, pre_season_games)
     total_games_two_weeks = defaultdict(int)
-    two_weeks_ago = time.time() - 3600 * 24 * 14
+    two_weeks_ago = (now - timedelta(weeks=2)).timestamp()
     win_streak = defaultdict(int)
     loss_streak = defaultdict(int)
 
@@ -151,17 +152,14 @@ def add_badges_(
 
 
 @get("/")
-async def get_leaderboard_page(db: sqlite3.Connection, state: State) -> Template:
-    season = get_season()
+async def get_leaderboard_page(db: sqlite3.Connection, now: datetime) -> Template:
+    season = get_season(now)
     query = "SELECT * FROM game WHERE season = ? ORDER BY timestamp"
     season_games = tuple(Game(*row) for row in db.execute(query, (season,)))
     player_name = dict(db.execute("SELECT id, name FROM player"))
     leaderboard = build_leaderboard(season_games, player_name)
 
-    # works because 1 rating = 1 game and "rating" has only games from previous seasons
-    pre_season_games = defaultdict(
-        int, db.execute("SELECT player, count(*) FROM rating GROUP BY player")
-    )
-    add_badges_(leaderboard, season_games, pre_season_games)
+    pre_season_games = defaultdict(int)
+    add_badges_(leaderboard, season_games, pre_season_games, now)
 
     return Template("leaderboard.html", context={"leaderboard": leaderboard})

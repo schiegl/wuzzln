@@ -1,4 +1,6 @@
+import sqlite3
 from collections import deque
+from datetime import datetime
 from pathlib import Path
 
 from litestar import Litestar
@@ -10,14 +12,13 @@ from litestar.logging.config import LoggingConfig
 from litestar.static_files.config import StaticFilesConfig
 from litestar.template import TemplateConfig
 
-from wuzzln.database import get_database
 from wuzzln.routes.add import add_game, delete_game, get_add_game_page
 from wuzzln.routes.games import get_games_page
 from wuzzln.routes.leaderboard import get_leaderboard_page
 from wuzzln.routes.matchmaking import get_matchmaking_page, post_matchmaking
 from wuzzln.routes.player import get_player_page
 from wuzzln.routes.rules import get_rules_page
-from wuzzln.routes.wrapped import get_wrapped_page, get_wrapped_season
+from wuzzln.routes.wrapped import get_wrapped_page, is_season_start
 
 logging_config = LoggingConfig(
     root={"level": "DEBUG"},
@@ -27,13 +28,24 @@ logging_config = LoggingConfig(
 
 
 def register_template_callables(engine: JinjaTemplateEngine):
-    engine.register_template_callable(
-        key="get_wrapped_season", template_callable=get_wrapped_season
-    )
+    engine.register_template_callable(key="is_season_start", template_callable=is_season_start)
+
+
+async def get_current_datetime():
+    """Get current time."""
+    return datetime.now()
+
+
+async def get_database() -> sqlite3.Connection:
+    """Get database connection."""
+    return sqlite3.connect("database/db.sqlite", detect_types=1)
 
 
 app = Litestar(
-    dependencies={"db": Provide(get_database, use_cache=True)},
+    dependencies={
+        "db": Provide(get_database),
+        "now": Provide(get_current_datetime),
+    },
     state=State({"matchmakings": deque(maxlen=10)}),
     route_handlers=[
         get_leaderboard_page,
