@@ -59,7 +59,7 @@
 	<tbody hx-target="closest tr" hx-swap="delete">
 	  {% for g in games %}
 		<tr>
-			<td>{{ g.pretty_date() }}</td>
+			<td>{{ g.timestamp|pretty_timestamp() }}</td>
 			<td class="team">
 				{% if g.defense_a == g.offense_a %}
 				<div><i class="ph ph-user"></i> <a href="/player/{{ g.defense_a }}">{{ player_name[g.defense_a] }}</a></div>

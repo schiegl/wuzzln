@@ -154,7 +154,7 @@
 
 {% if matchmakings %}
 	<div style="margin-top: 24px;">
-		<h2 style="text-align: center; font-style: italic; font-size: 1.1rem;">Recently generated matchups ...</h2>
+		<h2 style="text-align: center; font-style: italic; font-size: 1.1rem;">Add from recently generated matchups ...</h2>
 		{% with matchmakings=matchmakings, show_probability=true, on_click="setMatch" %}
 			{% include "matchmaking_fragment.html" %}
 		{% endwith %}

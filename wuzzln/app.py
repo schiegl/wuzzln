@@ -19,6 +19,7 @@ from wuzzln.routes.matchmaking import get_matchmaking_page, post_matchmaking
 from wuzzln.routes.player import get_player_page
 from wuzzln.routes.rules import get_rules_page
 from wuzzln.routes.wrapped import get_wrapped_page, is_season_start
+from wuzzln.utils import pretty_timestamp
 
 logging_config = LoggingConfig(
     root={"level": "DEBUG"},
@@ -27,8 +28,9 @@ logging_config = LoggingConfig(
 )
 
 
-def register_template_callables(engine: JinjaTemplateEngine):
-    engine.register_template_callable(key="is_season_start", template_callable=is_season_start)
+def register_template_callables(tmpl_engine: JinjaTemplateEngine):
+    tmpl_engine.register_template_callable(key="is_season_start", template_callable=is_season_start)
+    tmpl_engine.engine.filters["pretty_timestamp"] = pretty_timestamp
 
 
 async def get_current_datetime():
