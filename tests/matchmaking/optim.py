@@ -1,55 +1,22 @@
-import math
 import random
 from itertools import combinations
 from typing import Sequence
 
 import trueskill as ts
 
-from wuzzln.matchmaking import (
-    build_random_teams,
-    swap_two_players_neighborhood,
-    tabu_search,
-    win_probability,
-)
+from wuzzln.matchmaking import swap_two_players_neighborhood, tabu_search, win_probability
 
 
-def test_random_teams_two_players():
-    random.seed(394)
-    teams = build_random_teams((1, 2))
-    assert len(teams) == 2
-    (def_a, off_a), (def_b, off_b) = list(teams)
-    assert def_a == off_a
-    assert def_b == off_b
-    assert def_a != def_b
+def as_rating(mus: Sequence[float | int], sigma: float = 0.001) -> list[ts.Rating]:
+    return [ts.Rating(mu, sigma) for mu in mus]
 
 
-def test_random_teams_unique_players():
-    random.seed(394)
-    for i in range(4, 10, 2):
-        players = tuple(range(i))
-        teams = build_random_teams(players)
-        players_after = [p for ps in teams for p in ps]
-        assert len(set(players_after)) == len(players_after)
+def test_no_players():
+    assert tabu_search([], []) == []
 
 
-def test_random_teams_with_even_players():
-    random.seed(393)
-    for i in range(2, 10, 2):
-        players = tuple(range(i))
-        teams = build_random_teams(players)
-        players_after = [p for ps in teams for p in ps]
-        assert players != players_after
-
-
-def test_random_teams_with_odd_players():
-    random.seed(394)
-    for i in range(3, 10, 2):
-        players = tuple(range(i))
-        teams = build_random_teams(players)
-        players_after = [p for ps in teams for p in ps]
-        assert len(players_after) % 2 == 0, "Team with only single player exists"
-        assert set(players_after) == set(players), "Build team with unknown players"
-        assert len(players_after) == len(players) + 1, "Build too many teams"
+def test_two_players():
+    assert tabu_search(as_rating([2, 3]), as_rating([4, 5])) == [{(0, 0), (1, 1)}]
 
 
 def test_swap_two_player_neighborhood():
@@ -70,13 +37,10 @@ def test_swap_two_player_neighborhood():
     assert set(neighborhood) == neighborhood_expected
 
 
-def as_rating(mus: Sequence[float | int], sigma: float = 0.001) -> list[ts.Rating]:
-    return [ts.Rating(mu, sigma) for mu in mus]
-
-
 def test_tabu_search_unique_players():
     random.seed(394)
-    for i in range(2, 10, 2):
+    # starting at 4 because in 2 player scenario each player plays defense and offense
+    for i in range(4, 10, 2):
         defense = as_rating([random.randrange(0, 30) for _ in range(i)])
         offense = as_rating([random.randrange(0, 30) for _ in range(i)])
         # run multiple times because tabu search uses randomness
@@ -122,7 +86,6 @@ def test_tabu_search_ordered_solution():
 
         avg_devs = []
         for teams in tabu_search(defense, offense, k=4, max_iter=500):
-            print(teams)
             devs = []
             for team_a, team_b in combinations(sorted(teams), 2):
                 team_a = (defense[team_a[0]], offense[team_a[1]])

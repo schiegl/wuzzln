@@ -21,11 +21,10 @@ def build_random_teams[P](players: Solution[P]) -> set[Team[P]]:
     """Assemble teams by assigning players randomly.
 
     :param players: any number of players above 2
-    :raises ValueError: if too few players
     :return: random teams
     """
     if len(players) == 1:
-        raise ValueError("At least two players necessary")
+        return set()
 
     players = tuple(random.sample(players, len(players)))
 
@@ -103,8 +102,19 @@ def tabu_search(
     :raise ValueError: incorrect number of ratings
     :return: top team assignments with players named by their index in `defense` and `offense`
     """
+    if k < 1:
+        raise ValueError("k < 1 returns no solutions")
+    elif max_iter < 1:
+        raise ValueError("No optimization can happen if no iterations allowed")
+    elif tabu_size < 1:
+        raise ValueError("Tabu list length must be at least 1")
+
     if len(defense) != len(offense):
         raise ValueError("Each player must have defense and offense rating")
+    elif len(defense) < 2:
+        return []
+    elif len(defense) == 2:
+        return [{(p, p) for p in random.sample([0, 1], 2)} for _ in range(k)]
 
     @lru_cache(10_000)
     def draw_prob(team_a: Team[int], team_b: Team[int]) -> float:
