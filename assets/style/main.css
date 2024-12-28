@@ -282,6 +282,10 @@ table {
 	color: var(--fg);
 }
 
+.choices__list--dropdown .is-highlighted {
+	background: var(--bg-softer) !important;
+}
+
 .choices__list--dropdown .choices__input {
 	/*border-top: 1px solid var(--fg-softest) !important;*/
 	border-bottom: 1px dashed var(--fg-softest) !important;
