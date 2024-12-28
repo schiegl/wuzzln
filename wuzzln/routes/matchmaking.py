@@ -85,7 +85,7 @@ async def post_matchmaking(
             teams = random.choice(tabu_search(defense, offense, k=2))
 
     # build matchups
-    matchmakings = []
+    matchmakings = set()
     for (def_a, off_a), (def_b, off_b) in combinations(teams, 2):
         rat_a = (defense[def_a], offense[off_a])
         rat_b = (defense[def_b], offense[off_b])
@@ -100,10 +100,13 @@ async def post_matchmaking(
             win_prob,
             1 - win_prob,
         )
-        matchmakings.append(m)
+        matchmakings.add(m)
 
+    # prevent spamming matchmaking button ovewriting list
+    existing_matchmakings = {m._replace(timestamp=0) for m in state.matchmakings}
     for m in matchmakings:
-        state["matchmakings"].appendleft(m)
+        if m._replace(timestamp=0) not in existing_matchmakings:
+            state.matchmakings.appendleft(m)
 
     player_name = dict(db.execute("SELECT id, name FROM player"))
 
