@@ -87,7 +87,7 @@
 <form hx-post="/api/game/create">
 	<div class="game-entry-container">
 		<div class="game-entry-side">
-			<i class="ph ph-users" style="font-size: 48px; text-align: center;"></i>
+			<i class="ph-fill-if-dark ph-users" style="font-size: 48px; text-align: center;"></i>
 
 			<label for="defense_a"><i class="ph ph-shield"></i> Defense</label>
 			<select name="defense_a" id="defense_a" tabindex="1"></select>
@@ -118,7 +118,7 @@
 		</div>
 
 		<div class="game-entry-side">
-			<i class="ph-fill ph-users" style="font-size: 48px; text-align: center;"></i>
+			<i class="ph-fill-if-light ph-users" style="font-size: 48px; text-align: center;"></i>
 
 			<label for="defense_b"><i class="ph ph-shield"></i> Defense</label>
 			<select name="defense_b" id="defense_b" tabindex="3"></select>
@@ -154,7 +154,7 @@
 
 {% if matchmakings %}
 	<div style="margin-top: 24px;">
-		<h2 style="text-align: center; font-style: italic; font-size: 1.1rem;">Add from recently generated matchups ...</h2>
+		<h2 style="text-align: center; font-style: italic; font-size: 1.1rem;">Prefill with recent matchups ...</h2>
 		{% with matchmakings=matchmakings, show_probability=true, on_click="setMatch" %}
 			{% include "matchmaking_fragment.html" %}
 		{% endwith %}
