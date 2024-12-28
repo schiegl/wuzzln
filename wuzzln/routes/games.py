@@ -10,8 +10,8 @@ from wuzzln.data import Game, get_season
 @get("/games")
 async def get_games_page(db: sqlite3.Connection, now: datetime) -> Template:
     season = get_season(now)
-    query = "SELECT * FROM game WHERE season = ? ORDER BY timestamp DESC"
-    games = [Game(*row) for row in db.execute(query, (season,))]
+    query = "SELECT * FROM game WHERE timestamp < ? AND season = ? ORDER BY timestamp DESC"
+    games = [Game(*row) for row in db.execute(query, (now.timestamp(), season))]
     player_name = dict(db.execute("SELECT id, name FROM player"))
     ten_min_ago = (now - timedelta(minutes=10)).timestamp()
 

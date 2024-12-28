@@ -90,3 +90,7 @@
 	  {% endfor %}
 	</tbody>
 </table>
+
+{% if not games %}
+<p style="margin-top: 50px; color: var(--fg-softer)">Be the first to play!</p>
+{% endif %}

@@ -15,6 +15,7 @@ from wuzzln.statistics import (
     compute_streak,
     compute_zero_loss_count,
 )
+from wuzzln.utils import pretty_timestamp
 
 
 class Badge(NamedTuple):
@@ -143,8 +144,8 @@ def query_game_count(db: sqlite3.Connection, timestamp: float) -> Counter[Player
 @get("/")
 async def get_leaderboard_page(db: sqlite3.Connection, now: datetime) -> Template:
     season = get_season(now)
-    query = "SELECT * FROM game WHERE season = ? ORDER BY timestamp"
-    season_games_sorted = tuple(Game(*row) for row in db.execute(query, (season,)))
+    query = "SELECT * FROM game WHERE timestamp < ? AND season = ? ORDER BY timestamp"
+    season_games_sorted = tuple(Game(*row) for row in db.execute(query, (now.timestamp(), season)))
 
     season_start_ts = season_games_sorted[0].timestamp if season_games_sorted else now.timestamp()
     prior_game_count = query_game_count(db, season_start_ts)
