@@ -1,14 +1,20 @@
 import sqlite3
-from collections import defaultdict
+from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Mapping, NamedTuple, Sequence
+from typing import Mapping, NamedTuple
 
+from cachetools import LRUCache, cached
 from litestar import get
 from litestar.response import Template
 
 from wuzzln.data import Game, PlayerId, Rank, get_season
 from wuzzln.rating import compute_ratings, get_rank
+from wuzzln.statistics import (
+    compute_game_count,
+    compute_streak,
+    compute_zero_loss_count,
+)
 
 
 class Badge(NamedTuple):
@@ -29,12 +35,17 @@ class LeaderboardEntry:
 
 
 def build_leaderboard(
-    games_sorted: tuple[Game, ...], player_name: Mapping[PlayerId, str]
+    games_sorted: tuple[Game, ...],
+    player_name: Mapping[PlayerId, str],
+    prior_game_count: Counter[PlayerId],
+    now: datetime,
 ) -> dict[PlayerId, LeaderboardEntry]:
     """Build leaderboard without badges.
 
     :param games_sorted: all games played sorted by timestamp
     :param player_name: names of players for each player id
+    :param prior_game_count: number of games played before `games_sorted`
+    :param now: current time
     :return: player to leaderboard entry mapping
     """
     ratings = compute_ratings(games_sorted)
@@ -62,23 +73,6 @@ def build_leaderboard(
             [],
         )
 
-    return leaderboard
-
-
-def add_badges_(
-    leaderboard: Mapping[PlayerId, LeaderboardEntry],
-    season_games: Sequence[Game],
-    pre_season_games: dict[PlayerId, int],
-    now: datetime,
-):
-    """Add badges to leaderboard in-place.
-
-    :param leaderboard: all players in current leaderboard
-    :param season_games: games of the current season
-    :param pre_season_games: total number of games played in all previous seasons
-    :param now: current time
-    """
-    # one-trick pony
     if leaderboard:
         e = max(leaderboard.values(), key=lambda e: abs(e.skill_defense - e.skill_offense))
         diff = abs(e.skill_defense - e.skill_offense)
@@ -90,76 +84,72 @@ def add_badges_(
             badge = Badge("🦄", f"One-trick Pony: {text}")
             e.badges.append(badge)
 
-    # compute some game statistics
-    crawled = defaultdict(int)
-    total_games = defaultdict(int, pre_season_games)
-    total_games_two_weeks = defaultdict(int)
-    two_weeks_ago = (now - timedelta(weeks=2)).timestamp()
-    win_streak = defaultdict(int)
-    loss_streak = defaultdict(int)
+    if game_count := compute_game_count(games_sorted):
+        for e in leaderboard.values():
+            total_games = game_count[e.player] + prior_game_count[e.player]
+            if total_games < 25:
+                badge = Badge("🐣", f"Kücken: Practiced {total_games} times so far")
+                e.badges.append(badge)
 
-    for g in season_games:
-        result = [
-            ({g.defense_a, g.offense_a}, g.score_a, g.score_b),
-            ({g.defense_b, g.offense_b}, g.score_b, g.score_a),
-        ]
-        for players, score, score_other in result:
-            is_crawl = score == 0 and score_other > 0 and all(total_games[p] >= 25 for p in players)
-            for p in players:
-                if is_crawl:
-                    crawled[p] += 1
-                win_streak[p] = win_streak[p] + 1 if score > score_other else 0
-                loss_streak[p] = loss_streak[p] + 1 if score < score_other else 0
-                total_games[p] += 1
-                if g.timestamp > two_weeks_ago:
-                    total_games_two_weeks[p] += 1
-
-    # knee bleeder
-    if crawled:
-        player, crawl_num = max(crawled.items(), key=lambda x: x[1])
-        badge = Badge("🩸", f"Knee Bleeder: Inspected the underside of the table {crawl_num} times")
+    ts_2w_ago = (now - timedelta(weeks=2)).timestamp()
+    games_2w = (g for g in games_sorted if g.timestamp > ts_2w_ago)
+    if game_count_2w := compute_game_count(games_2w):
+        player, count = game_count_2w.most_common(1)[0]
+        badge = Badge("🛌", f"Sleeps in the office: Asked {count} times if someone wants play")
         leaderboard[player].badges.append(badge)
 
-    # chicken status
-    if total_games:
-        for p in leaderboard.keys():
-            num_games = total_games[p]
-            if num_games < 25:
-                badge = Badge("🐣", f"Kücken: Practiced {num_games} times so far")
-                leaderboard[p].badges.append(badge)
-
-    # sleeps in the office
-    if total_games_two_weeks:
-        player, num_games = max(total_games_two_weeks.items(), key=lambda x: x[1])
-        badge = Badge("🛌", f"Sleeps in the office: Asked {num_games} times if someone wants play")
+    if crawl_count := compute_zero_loss_count(games_sorted, prior_game_count):
+        player, count = crawl_count.most_common(1)[0]
+        badge = Badge("🩸", f"Knee Bleeder: Inspected the underside of the table {count} times")
         leaderboard[player].badges.append(badge)
 
-    # win streak
-    if win_streak:
-        player, num_wins = max(win_streak.items(), key=lambda x: x[1])
-        if num_wins > 3:
-            badge = Badge("🎢", f"Unstoppable: Won {num_wins} times in a row")
+    if win_streak := compute_streak(games_sorted, "win"):
+        player, count = win_streak.most_common(1)[0]
+        if count > 3:
+            badge = Badge("🎢", f"Unstoppable: Won {count} times in a row")
             leaderboard[player].badges.append(badge)
 
-    # moral support
-    if loss_streak:
-        player, num_losses = max(loss_streak.items(), key=lambda x: x[1])
-        if num_losses > 3:
+    if loss_streak := compute_streak(games_sorted, "loss"):
+        player, count = loss_streak.most_common(1)[0]
+        if count > 3:
             badge = Badge(
-                "🏳️", f"Moral support: Kept their team mate company {num_wins} times in a row"
+                "🏳️", f"Moral support: Kept their team mate company {count} times in a row"
             )
             leaderboard[player].badges.append(badge)
+
+    return leaderboard
+
+
+@cached(LRUCache(1), key=lambda _, timestamp: timestamp)
+def query_game_count(db: sqlite3.Connection, timestamp: float) -> Counter[PlayerId]:
+    """Get all games played before a timestamp.
+
+    Cached because this is used on the front page
+
+    :param db: game database
+    :param timestamp: unix epoch timestamp
+    :return: player id to game count
+    """
+    query = """
+        SELECT p.id, count(*)
+        FROM player AS p JOIN game AS g
+            ON p.id IN (g.defense_a, g.offense_a, g.defense_b, g.offense_b)
+        WHERE timestamp < ?
+        GROUP BY p.id
+    """
+    return Counter(dict(db.execute(query, (timestamp,))))
 
 
 @get("/")
 async def get_leaderboard_page(db: sqlite3.Connection, now: datetime) -> Template:
     season = get_season(now)
     query = "SELECT * FROM game WHERE season = ? ORDER BY timestamp"
-    season_games = tuple(Game(*row) for row in db.execute(query, (season,)))
-    player_name = dict(db.execute("SELECT id, name FROM player"))
-    leaderboard = build_leaderboard(season_games, player_name)
+    season_games_sorted = tuple(Game(*row) for row in db.execute(query, (season,)))
 
-    pre_season_games = defaultdict(int)
-    add_badges_(leaderboard, season_games, pre_season_games, now)
+    season_start_ts = season_games_sorted[0].timestamp if season_games_sorted else now.timestamp()
+    prior_game_count = query_game_count(db, season_start_ts)
+
+    player_name = dict(db.execute("SELECT id, name FROM player"))
+    leaderboard = build_leaderboard(season_games_sorted, player_name, prior_game_count, now)
 
     return Template("leaderboard.html", context={"leaderboard": leaderboard})
