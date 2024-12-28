@@ -15,7 +15,8 @@
 		width: 20%;
 		text-align: center;
 		font-size: 0.9rem;
-		color: var(--fg-soft);
+		color: var(--fg-softer);
+		cursor: help;
 	}
 	.games tbody td:nth-child(2), td:nth-child(3) {
 		width: 32%;
@@ -44,6 +45,9 @@
 		background: none;
 		cursor: pointer;
 	}
+	.games .delete-btn:hover {
+		color: var(--primary);
+	}
 </style>
 
 <table class="games">
@@ -59,7 +63,7 @@
 	<tbody hx-target="closest tr" hx-swap="delete">
 	  {% for g in games %}
 		<tr>
-			<td>{{ g.timestamp|pretty_timestamp() }}</td>
+			<td data-tooltip="{{ g.timestamp|pretty_timestamp() }}">{{ g.timestamp|pretty_timestamp(now) }}</td>
 			<td class="team">
 				{% if g.defense_a == g.offense_a %}
 				<div><i class="ph ph-user"></i> <a href="/player/{{ g.defense_a }}">{{ player_name[g.defense_a] }}</a></div>
