@@ -72,4 +72,9 @@ def clean_id(string: str) -> str:
 
 
 def get_season(now: datetime) -> SeasonId:
+    """Get identifier of current season.
+
+    :param now: current time
+    :return: season id
+    """
     return f"{now.year}-{(now.month - 1) // 3 + 1}"

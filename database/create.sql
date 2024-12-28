@@ -17,6 +17,8 @@ CREATE TABLE player(
 	FOREIGN KEY(org) REFERENCES org(id)
 ) WITHOUT ROWID;
 
+-- season is not strictly needed since we can derive it from the timestamp
+-- but it makes lots of queries simpler
 CREATE TABLE game(
 	id        TEXT PRIMARY KEY NOT NULL,
 	timestamp NUMERIC NOT NULL,
