@@ -18,8 +18,8 @@ from wuzzln.routes.leaderboard import get_leaderboard_page
 from wuzzln.routes.matchmaking import get_matchmaking_page, post_matchmaking
 from wuzzln.routes.player import get_player_page
 from wuzzln.routes.rules import get_rules_page
-from wuzzln.routes.wrapped import get_wrapped_page, is_season_start
-from wuzzln.utils import pretty_timestamp
+from wuzzln.routes.wrapped import get_wrapped_page
+from wuzzln.utils import is_season_start, pretty_timestamp
 
 logging_config = LoggingConfig(
     root={"level": "DEBUG"},
@@ -28,25 +28,28 @@ logging_config = LoggingConfig(
 )
 
 
-def register_template_callables(tmpl_engine: JinjaTemplateEngine):
-    tmpl_engine.register_template_callable(key="is_season_start", template_callable=is_season_start)
-    tmpl_engine.engine.filters["pretty_timestamp"] = pretty_timestamp
-
-
-async def get_current_datetime():
-    """Get current time."""
-    return datetime.now()
-
-
 async def get_database() -> sqlite3.Connection:
     """Get database connection."""
     return sqlite3.connect("database/db.sqlite", detect_types=1)
 
 
+def get_current_datetime():
+    """Get current time."""
+    return datetime.now()
+
+
+def register_template_callables(tmpl_engine: JinjaTemplateEngine):
+    tmpl_engine.register_template_callable(
+        key="now", template_callable=lambda ctx: get_current_datetime()
+    )
+    tmpl_engine.engine.tests["season_start"] = is_season_start
+    tmpl_engine.engine.filters["pretty_timestamp"] = pretty_timestamp
+
+
 app = Litestar(
     dependencies={
         "db": Provide(get_database),
-        "now": Provide(get_current_datetime),
+        "now": Provide(get_current_datetime, sync_to_thread=True),
     },
     state=State({"matchmakings": deque(maxlen=10)}),
     route_handlers=[

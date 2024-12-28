@@ -1,4 +1,17 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+
+from wuzzln.data import get_season
+
+
+def is_season_start(now: datetime) -> bool:
+    """Check if season start.
+
+    :param now: current time
+    :return: true if new season
+    """
+    now_season = get_season(now)
+    week_ago_season = get_season(now - timedelta(days=7))
+    return now_season != week_ago_season
 
 
 def pretty_timestamp(timestamp: float, now: datetime | None = None) -> str:

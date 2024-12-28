@@ -22,6 +22,5 @@ async def get_games_page(db: sqlite3.Connection, now: datetime) -> Template:
             "player_name": player_name,
             "delete_timestamp_threshold": ten_min_ago,
             "season": season,
-            "now": now,
         },
     )
