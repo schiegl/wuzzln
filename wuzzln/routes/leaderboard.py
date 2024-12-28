@@ -13,9 +13,8 @@ from wuzzln.rating import compute_ratings, get_rank
 from wuzzln.statistics import (
     compute_game_count,
     compute_streak,
-    compute_zero_loss_count,
+    compute_zero_score_count,
 )
-from wuzzln.utils import pretty_timestamp
 
 
 class Badge(NamedTuple):
@@ -99,7 +98,7 @@ def build_leaderboard(
         badge = Badge("🛌", f"Sleeps in the office: Asked {count} times if someone wants play")
         leaderboard[player].badges.append(badge)
 
-    if crawl_count := compute_zero_loss_count(games_sorted, prior_game_count):
+    if crawl_count := compute_zero_score_count(games_sorted, prior_game_count, "win"):
         player, count = crawl_count.most_common(1)[0]
         badge = Badge("🩸", f"Knee Bleeder: Inspected the underside of the table {count} times")
         leaderboard[player].badges.append(badge)

@@ -5,7 +5,7 @@ from wuzzln.statistics import (
     compute_1v1_count,
     compute_game_count,
     compute_streak,
-    compute_zero_loss_count,
+    compute_zero_score_count,
 )
 
 
@@ -61,34 +61,43 @@ def test_1v1_game_count_not_counted_twice():
     assert compute_game_count(games) == Counter({"a": 2, "b": 2})
 
 
-def test_no_zero_loss():
+def test_no_zero_score_count():
     games = [
         as_game("a", "b", "c", "d", 5, 1),
         as_game("a", "b", "c", "d", 5, 3),
     ]
-    assert compute_zero_loss_count(
-        games, {"a": 25, "b": 25, "c": 25, "d": 25}, min_game_count=25
-    ) == Counter({})
+    prior = {"a": 25, "b": 25, "c": 25, "d": 25}
+    assert compute_zero_score_count(games, prior, "win", min_game_count=25) == Counter({})
+    assert compute_zero_score_count(games, prior, "loss", min_game_count=25) == Counter({})
 
 
-def test_zero_loss_below_min_game_count():
+def test_zero_score_with_single_player_below_min_game_count():
     games = [
         as_game("a", "b", "c", "d", 5, 0),
         as_game("a", "b", "c", "d", 0, 1),
     ]
-    assert compute_zero_loss_count(
-        games, {"a": 25, "b": 25, "c": 24, "d": 24}, min_game_count=25
-    ) == Counter({"a": 1, "b": 1})
+    prior = {"a": 25, "b": 25, "c": 24, "d": 25}
+    # first win doesn't count because c is below 25 games
+    assert compute_zero_score_count(games, prior, "win", min_game_count=25) == Counter(
+        {"c": 1, "d": 1}
+    )
+    assert compute_zero_score_count(games, prior, "loss", min_game_count=25) == Counter(
+        {"a": 1, "b": 1}
+    )
 
 
-def test_zero_loss_reach_min_game_count_during_games():
+def test_zero_score_reach_min_game_count_during_games():
     games = [
         as_game("a", "b", "c", "d", 5, 0),
         as_game("a", "b", "c", "d", 5, 0),
     ]
-    assert compute_zero_loss_count(
-        games, {"a": 25, "b": 25, "c": 24, "d": 24}, min_game_count=25
-    ) == Counter({"c": 1, "d": 1})
+    prior = {"a": 25, "b": 25, "c": 24, "d": 25}
+    assert compute_zero_score_count(games, prior, "win", min_game_count=25) == Counter(
+        {"a": 1, "b": 1}
+    )
+    assert compute_zero_score_count(games, prior, "loss", min_game_count=25) == Counter(
+        {"c": 1, "d": 1}
+    )
 
 
 def test_streak_non_contiguous():
