@@ -46,7 +46,7 @@
 			{% if show_probability %}
 				<div class="win-probability middle">
 					<i class="ph {% if m.win_probability_a < 0.5 %}ph-trend-down{% else %}ph-trend-up{% endif %}"></i>
-					{{ ((m.win_probability_a|round(2))*100)|int }}%
+					{{ (m.win_probability_a*100)|round(0)|int }}%
 				</div>
 			{% endif %}
 			<div class="side" style="text-align: right">
@@ -61,7 +61,7 @@
 			{% if show_probability %}
 				<div class="win-probability middle">
 					<i class="ph {% if m.win_probability_b < 0.5 %}ph-trend-down{% else %}ph-trend-up{% endif %}"></i>
-					{{ ((m.win_probability_b|round(2))*100)|int }}%
+					{{ (m.win_probability_b*100)|round(0)|int }}%
 				</div>
 			{% endif %}
 		</div>
