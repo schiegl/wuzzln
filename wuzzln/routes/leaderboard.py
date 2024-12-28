@@ -4,17 +4,18 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Mapping, NamedTuple
 
-from cachetools import LRUCache, cached
 from litestar import get
-from litestar.response import Template
+from litestar.response import Redirect, Template
 
 from wuzzln.data import Game, PlayerId, Rank, get_season
+from wuzzln.database import query_game_count
 from wuzzln.rating import compute_ratings, get_rank
 from wuzzln.statistics import (
     compute_game_count,
     compute_streak,
     compute_zero_score_count,
 )
+from wuzzln.utils import is_season_start
 
 
 class Badge(NamedTuple):
@@ -120,36 +121,20 @@ def build_leaderboard(
     return leaderboard
 
 
-@cached(LRUCache(1), key=lambda _, timestamp: timestamp)
-def query_game_count(db: sqlite3.Connection, timestamp: float) -> Counter[PlayerId]:
-    """Get all games played before a timestamp.
-
-    Cached because this is used on the front page
-
-    :param db: game database
-    :param timestamp: unix epoch timestamp
-    :return: player id to game count
-    """
-    query = """
-        SELECT p.id, count(*)
-        FROM player AS p JOIN game AS g
-            ON p.id IN (g.defense_a, g.offense_a, g.defense_b, g.offense_b)
-        WHERE timestamp < ?
-        GROUP BY p.id
-    """
-    return Counter(dict(db.execute(query, (timestamp,))))
-
-
 @get("/")
-async def get_leaderboard_page(db: sqlite3.Connection, now: datetime) -> Template:
+async def get_leaderboard_page(db: sqlite3.Connection, now: datetime) -> Template | Redirect:
     season = get_season(now)
     query = "SELECT * FROM game WHERE timestamp < ? AND season = ? ORDER BY timestamp"
-    season_games_sorted = tuple(Game(*row) for row in db.execute(query, (now.timestamp(), season)))
+    season_games = tuple(Game(*row) for row in db.execute(query, (now.timestamp(), season)))
 
-    season_start_ts = season_games_sorted[0].timestamp if season_games_sorted else now.timestamp()
-    prior_game_count = query_game_count(db, season_start_ts)
+    if not season_games and is_season_start(now):
+        return Redirect("/wrapped")
+
+    pre_season_game_count = query_game_count(
+        db, season_games[0].timestamp if season_games else now.timestamp()
+    )
 
     player_name = dict(db.execute("SELECT id, name FROM player"))
-    leaderboard = build_leaderboard(season_games_sorted, player_name, prior_game_count, now)
+    leaderboard = build_leaderboard(season_games, player_name, pre_season_game_count, now)
 
     return Template("leaderboard.html", context={"leaderboard": leaderboard})

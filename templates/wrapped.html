@@ -67,22 +67,22 @@
 <section style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
 	<i class="ph-duotone ph-gift" style="font-size: 2rem; margin-bottom: 5px;"></i>
 	<span style="font-size: 1.5rem">{{ season }}</span>
-	<p>
-		A season in review...
-	</p>
+	<p style="margin-top: 3px">A season in review...</p>
 </section>
 
-<section class="awards">
-	{% for award in awards %}
-	<div class="award">
-		<span class="emoji" >{{ award.emoji }}</span>
-		<div class="content">
-			<span class="title">{{ award.title }}</span>
-			<a href="/player/{{ award.player }}" class="player">{{ player_name[award.player] }}</a>
-			<span class="description">{{ award.description }}</span>
+<section>
+	<div class="awards">
+		{% for award in awards %}
+		<div class="award">
+			<span class="emoji" >{{ award.emoji }}</span>
+			<div class="content">
+				<span class="title">{{ award.title }}</span>
+				<a href="/player/{{ award.player }}" class="player">{{ player_name[award.player] }}</a>
+				<span class="description">{{ award.description }}</span>
+			</div>
 		</div>
+		{% endfor %}
 	</div>
-	{% endfor %}
 </section>
 
 {% endblock %}
