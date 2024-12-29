@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Mapping, NamedTuple
 
-from litestar import get
+from litestar import Request, get
 from litestar.response import Redirect, Template
 
 from wuzzln.data import Game, PlayerId, Rank, get_season
@@ -122,12 +122,16 @@ def build_leaderboard(
 
 
 @get("/")
-async def get_leaderboard_page(db: sqlite3.Connection, now: datetime) -> Template | Redirect:
+async def get_leaderboard_page(
+    request: Request, db: sqlite3.Connection, now: datetime
+) -> Template | Redirect:
     season = get_season(now)
     query = "SELECT * FROM game WHERE timestamp < ? AND season = ? ORDER BY timestamp"
     season_games = tuple(Game(*row) for row in db.execute(query, (now.timestamp(), season)))
 
-    if not season_games and is_season_start(now):
+    if is_season_start(now) and (
+        not season_games or request.cookies.get("wuzzln-wrapped") != season
+    ):
         return Redirect("/wrapped")
 
     pre_season_game_count = query_game_count(

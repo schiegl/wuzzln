@@ -7,7 +7,7 @@ from typing import NamedTuple
 type PlayerId = str
 type Team = tuple[PlayerId, PlayerId]
 type OrgId = str
-type SeasonId = str
+type SeasonId = str  # \d\d\d\d-[1234]
 type Timestamp = float
 
 
@@ -71,10 +71,17 @@ def clean_id(string: str) -> str:
     return re.sub(r"[^a-z0-9_]", "", norm_str)
 
 
-def get_season(now: datetime) -> SeasonId:
+def get_season(now: datetime, offset: int = 0) -> SeasonId:
     """Get identifier of current season.
 
     :param now: current time
+    :param offset: how many seasons to go back/forward
     :return: season id
     """
-    return f"{now.year}-{(now.month - 1) // 3 + 1}"
+    year = now.year
+    quarter = (now.month - 1) // 3 + 1
+    if offset != 0:
+        quarters = (year * 4) + (quarter - 1) + offset
+        year = quarters // 4
+        quarter = (quarters % 4) + 1
+    return f"{year}-{quarter}"

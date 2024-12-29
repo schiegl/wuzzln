@@ -2,7 +2,6 @@ import sqlite3
 from datetime import datetime
 
 from litestar import get
-from litestar.datastructures.state import State
 from litestar.exceptions import NotFoundException
 from litestar.response import Response
 from litestar.response.template import Template

@@ -4,13 +4,92 @@
 <title>wuzzln - Wrapped</title>
 
 <style>
-	.awards {
+	section {
+		margin: 10px 0 48px 0;
+	}
+
+	.preamble {
+		text-align: center;
+	}
+
+	.grid {
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
-		column-gap: 25px;
-		row-gap: 0;
 		flex-wrap: wrap;
+	}
+
+	.kpi {
+		width: 160px;
+		display: flex;
+		flex-direction: column;
+		justify-content: stretch;
+		align-items: center;
+		row-gap: 5px;
+	}
+
+	.kpi .title {
+		color: var(--fg-softer);
+		font-size: 0.9rem;
+		text-align: center;
+	}
+
+	.kpi .value {
+		display: flex;
+		flex-direction: row;
+		gap: 5px;
+		align-items: center;
+	}
+
+	.kpi .value .absolute {
+		font-size: 2rem;
+	}
+
+	.kpi .value .diff {
+		font-size: 0.75rem;
+		color: var(--fg-softer);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.placing {
+		width: 120px;
+		display: flex;
+		flex-direction: column;
+		justify-content: end;
+		align-items: center;
+	}
+
+	.placing .medal {
+		border-radius: 100%;
+		background: var(--bg-softer);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border: 1px dashed var(--fg-softest);
+	}
+
+	.placing .player {
+		margin-top: 10px;
+		font-weight: 500;
+	}
+
+	.placing .rating {
+		margin-top: 5px;
+		color: var(--fg-soft);
+		display: flex;
+		flex-direction: row;
+		gap: 8px;
+		font-size: 0.85rem;
+	}
+
+	.placing .rating > div {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 2px;
 	}
 
 	.award {
@@ -64,25 +143,82 @@
 
 {% block main %}
 
-<section style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-	<i class="ph-duotone ph-gift" style="font-size: 2rem; margin-bottom: 5px;"></i>
-	<span style="font-size: 1.5rem">{{ season }}</span>
-	<p style="margin-top: 3px">A season in review...</p>
+<section>
+	<p class="preamble">Another quarter is over, actually <i>{{ season_count }} quarter{% if season_count > 1 %}s{% endif %}</i> passed ...</p>
 </section>
 
 <section>
-	<div class="awards">
+	<p class="preamble">... to finish this season, we tracked the most important <i>KPIs</i> this quarter just for <i>you</i> ...</p>
+	<div class="grid" style="margin-top: 50px; row-gap: 35px;">
+		{% for kpi in kpis %}
+		<div class="kpi">
+			<div class="value">
+				<div class="absolute">{{ kpi.value }}</div>
+				<div class="diff" style="color: var(--fg-{% if kpi.diff_relative < 0 %}red{% else %}green{% endif %}">
+					<i class="ph ph-trend-{% if kpi.diff_relative < 0 %}down{% else %}up{% endif %}"></i>
+					{% if kpi.diff_relative > 0 %}+{% else %}-{% endif %}{{ (kpi.diff_relative*100)|round|int|abs }}%
+				</div>
+			</div>
+			<div class="title">{{ kpi.title }}</div>
+		</div>
+		{% endfor %}
+	</div>
+</section>
+
+<section>
+	<p class="preamble">... this website being first and foremost a leaderboard, here are the <i>top players</i> ...</p>
+	<div class="grid" style="margin-top: 50px; gap: 5px;">
+		{% if placing|length > 1 %}
+		<div class="placing">
+			<div class="medal" style="width: 4rem; height: 4rem; font-size: 2.7rem;">🥈</div>
+			<div class="player" style="font-size: 1.2rem">{{ player_name[placing[1].player] }}</div>
+			<div class="rating">
+				<div><i class="ph ph-shield"></i>{{ placing[1].skill_defense|int }}</div>
+				<div><i class="ph ph-sword"></i>{{ placing[1].skill_offense|int }}</div>
+			</div>
+		</div>
+		{% endif %}
+		{% if placing|length > 0 %}
+		<div class="placing">
+			<div class="medal" style="width: 5rem; height: 5rem; font-size: 3.7rem;">🥇</div>
+			<div class="player" style="font-size: 1.2rem">{{ player_name[placing[0].player] }}</div>
+			<div class="rating">
+				<div><i class="ph ph-shield"></i>{{ placing[0].skill_defense|int }}</div>
+				<div><i class="ph ph-sword"></i>{{ placing[0].skill_offense|int }}</div>
+			</div>
+		</div>
+		{% endif %}
+		{% if placing|length > 2 %}
+		<div class="placing">
+			<div class="medal" style="width: 3rem; height: 3rem; font-size: 1.7rem;">🥉</div>
+			<div class="player" style="font-size: 1.2rem">{{ player_name[placing[2].player] }}</div>
+			<div class="rating">
+				<div><i class="ph ph-shield"></i>{{ placing[2].skill_defense|int }}</div>
+				<div><i class="ph ph-sword"></i>{{ placing[2].skill_offense|int }}</div>
+			</div>
+		</div>
+		{% endif %}
+	</div>
+</section>
+
+<section>
+	<p class="preamble">... but there are also many other noteworthy <i>individual performances</i> ...</p>
+	<div class="grid" style="column-gap: 25px;">
 		{% for award in awards %}
 		<div class="award">
 			<span class="emoji" >{{ award.emoji }}</span>
 			<div class="content">
 				<span class="title">{{ award.title }}</span>
-				<a href="/player/{{ award.player }}" class="player">{{ player_name[award.player] }}</a>
+				<span class="player">{% for p in award.players %}{{ player_name[p] }}{% if not loop.last %} & {% endif %} {% endfor %}</span>
 				<span class="description">{{ award.description }}</span>
 			</div>
 		</div>
 		{% endfor %}
 	</div>
+</section>
+
+<section>
+	<p class="preamble">... thank you for playing and see you in the <i>next season</i> 👋</p>
 </section>
 
 {% endblock %}

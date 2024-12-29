@@ -23,7 +23,7 @@ def get_rank(trueskill_mean: float) -> Rank:
         return Rank.IMMORTAL
 
 
-@lru_cache(1)
+@lru_cache(2)
 def compute_ratings(games_sorted: tuple[Game, ...]) -> list[Rating]:
     """Compute rating history.
 

@@ -118,7 +118,7 @@
 			</td>
 			<td>
 				{% if e.skill_diff|round(1) != 0 %}
-				<span style="color: {% if e.skill_diff > 0 %}#3b752f{% else %}#a63f3f{% endif %}">
+				<span style="color: var(--fg-{% if e.skill_diff > 0 %}green{% else %}red{% endif %})">
 					{% if e.skill_diff > 0 %}+{% endif %}{{ e.skill_diff|round(1) }}
 				</span>
 				{% endif %}

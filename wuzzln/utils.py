@@ -10,7 +10,7 @@ def is_season_start(now: datetime) -> bool:
     :return: true if new season
     """
     now_season = get_season(now)
-    week_ago_season = get_season(now - timedelta(days=7))
+    week_ago_season = get_season(now - timedelta(days=14))
     return now_season != week_ago_season
 
 
