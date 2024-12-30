@@ -25,6 +25,7 @@ class Kpi:
     title: str
     value: float | int
     diff_relative: float
+    footnote: str | None = None
 
 
 @dataclass
@@ -71,9 +72,10 @@ def compute_kpis(
     prev_work_days = get_work_days(prev_games)
     kpis.append(
         Kpi(
-            "Total days played",
+            "Total time played (days)*",
             round(work_days, 1),
             (work_days - prev_work_days) / prev_work_days if prev_work_days != 0 else 0,
+            "* Assuming an 8h work day and 10 minutes per game",
         )
     )
 
@@ -84,14 +86,19 @@ def compute_kpis(
     prev_player_count = get_unique_player_count(prev_games)
     kpis.append(
         Kpi(
-            "Total Players",
+            "Total players",
             player_count,
             (player_count - prev_player_count) / prev_player_count if prev_player_count != 0 else 0,
         )
     )
 
     kpis.append(
-        Kpi("Remarks on the validity of the rating algorithm", randint(111, 122), random() * 0.3)
+        Kpi(
+            "Complaints about rating algorithm correctness**",
+            randint(30, 40),
+            random() * 0.3,
+            "** Out of those, 0 took up my proposal to read the code",
+        )
     )
 
     crawl_count = sum(compute_zero_score_count(games, prior_game_count, "loss").values())
@@ -100,7 +107,7 @@ def compute_kpis(
     )
     kpis.append(
         Kpi(
-            "Table Underside Inspections",
+            "Table underside inspections",
             crawl_count,
             round((crawl_count - prev_crawl_count) / prev_crawl_count, 2),
         )

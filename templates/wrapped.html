@@ -144,8 +144,8 @@
 {% block main %}
 
 <section>
-	<p class="preamble">Another quarter is over, we're now <i>{{ season_count }} season{% if season_count > 1 %}s{% endif %}</i> in!</p>
-	<p class="preamble">To finish this season, we tracked the most important <i>KPIs</i> this quarter just for <i>you</i></p>
+	<p class="preamble">Another quarter is over, we're now <i><b>{{ season_count }} season{% if season_count > 1 %}s{% endif %}</b></i> in!</p>
+	<p class="preamble">To finish this season, we tracked the most important <i>KPIs</i> this quarter for <i>you</i></p>
 	<div class="grid" style="margin-top: 50px; row-gap: 35px;">
 		{% for kpi in kpis %}
 		<div class="kpi">
@@ -158,6 +158,13 @@
 			</div>
 			<div class="title">{{ kpi.title }}</div>
 		</div>
+		{% endfor %}
+	</div>
+	<div style="font-size: 0.8rem; color: var(--fg-softest); padding: 40px 0 0 0; text-align: center; line-height: 1.5">
+		{% for kpi in kpis %}
+			{% if kpi.footnote %}
+			{{ kpi.footnote }}<br>
+			{% endif %}
 		{% endfor %}
 	</div>
 </section>

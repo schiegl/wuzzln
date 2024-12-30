@@ -1,5 +1,4 @@
 import sqlite3
-import time
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -101,7 +100,7 @@ def build_leaderboard(
             badge = Badge("🛌", f"Sleeps in the office: Asked {count} times if someone wants play")
             leaderboard[player].badges.append(badge)
 
-    if crawl_count := compute_zero_score_count(games_sorted, prior_game_count, "win"):
+    if crawl_count := compute_zero_score_count(games_sorted, prior_game_count, "loss"):
         player, count = crawl_count.most_common(1)[0]
         badge = Badge("🩸", f"Knee Bleeder: Inspected the underside of the table {count} times")
         leaderboard[player].badges.append(badge)

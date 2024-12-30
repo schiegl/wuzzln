@@ -30,6 +30,7 @@
 
 ::selection {
 	background: var(--primary-soft);
+	color: white;
 }
 
 body {
