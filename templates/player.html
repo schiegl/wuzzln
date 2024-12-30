@@ -31,6 +31,10 @@
 	.level .title {
 		color: var(--fg-softer);
 		cursor: help;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 5px;
 	}
 
 	.level .value {
@@ -61,37 +65,12 @@
 			</span>
 		</div>
 		<div class="level">
-			<span class="value">{{ best_skill|round(1) }}</span>
-			<span class="title" data-tooltip="Best overall rating ever achieved">
-				<i class="ph ph-trend-up"></i> Best Rating
-			</span>
-		</div>
-		<div class="level">
-			<span class="value">{{ total_games }}</span>
-			<span class="title" data-tooltip="Number of recorded games played across all seasons">
-				<i class="ph ph-soccer-ball"></i> Total Games
+			<span class="value">{{ season_games }}</span>
+			<span class="title" data-tooltip="Number of games this season">
+				<i class="ph ph-soccer-ball"></i> Season Games
 			</span>
 		</div>
 	</div>
 </section>
-
-
-<section>
-	<div id="season-skill-chart"></div>
-</section>
-
-<!--import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm";-->
-<script type="module">
-	import * as Plot from "/js/observablehq-plot.min.js";
-
-	const allSeasonsRatings = {{ all_seasons_ratings|safe }}
-	const plot = Plot.plot({
-	  marks: [
-		Plot.ruleY([0]),
-		Plot.lineY(allSeasonsRatings, {x: "season", y: "rating"}),
-	  ]
-	})
-	document.getElementById("season-skill-chart").append(plot);
-</script>
 
 {% endblock %}

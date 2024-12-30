@@ -3,7 +3,6 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 from random import randint, random
-from statistics import median
 from typing import Mapping
 
 from litestar import Request, get
