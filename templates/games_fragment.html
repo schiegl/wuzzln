@@ -61,7 +61,7 @@
 	</thead>
 	<tbody hx-target="closest tr" hx-swap="delete">
 	  {% for g in games %}
-		<tr>
+		<tr {% if g.score_a == 0 or g.score_b == 0 %}style="background: var(--primary-softer)"{% endif %}>
 			<td>{{ g.timestamp|pretty_timestamp(now()) }}</td>
 			<td class="team">
 				{% if g.defense_a == g.offense_a %}
