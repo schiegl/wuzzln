@@ -1,6 +1,5 @@
-import random
 import sqlite3
-from collections import Counter, defaultdict
+from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 from itertools import combinations
@@ -18,7 +17,7 @@ from wuzzln import toast
 from wuzzln.data import Game, Matchmaking, PlayerId, get_season
 from wuzzln.database import exists
 from wuzzln.matchmaking import build_random_teams, tabu_search, variety_2v2, win_probability
-from wuzzln.rating import compute_ratings
+from wuzzln.rating import get_latest_rating
 
 
 @get("/matchmaking")
@@ -27,7 +26,7 @@ async def get_matchmaking_page(db: sqlite3.Connection) -> Template:
     return Template("matchmaking.html", context={"player_name": player_name})
 
 
-def get_rating(
+def get_latest_defense_offense(
     games_sorted: tuple[Game, ...], players: Sequence[PlayerId]
 ) -> tuple[list[ts.Rating], list[ts.Rating]]:
     """Get current rating of player.
@@ -36,21 +35,21 @@ def get_rating(
     :param players: players to get rating from
     :return: defense, offense rating
     """
-    players_set = set(players)
-    ratings = compute_ratings(games_sorted)
-    defense, offense = defaultdict(ts.Rating), defaultdict(ts.Rating)
-    for r in reversed(ratings):
-        if r.player in players_set and r.player not in defense:
-            defense[r.player] = ts.Rating(r.defense_mu, r.defense_sigma)
-            offense[r.player] = ts.Rating(r.offense_mu, r.offense_sigma)
+    latest_rating = get_latest_rating(games_sorted)
+    defense = [ts.Rating() for _ in range(len(players))]
+    offense = [ts.Rating() for _ in range(len(players))]
+    for i, p in enumerate(players):
+        if r := latest_rating.get(p):
+            defense[i] = ts.Rating(r.defense_mu, r.defense_sigma)
+            offense[i] = ts.Rating(r.offense_mu, r.offense_sigma)
 
-    return [defense[p] for p in players], [offense[p] for p in players]
+    return defense, offense
 
 
 @dataclass
 class MatchmakingTaskDTO:
     players: list[PlayerId]
-    method: Literal["fair", "quite_fair", "random"]
+    method: Literal["fair", "random"]
     probability: Literal["on"] | None = None
 
 
@@ -89,7 +88,7 @@ async def post_matchmaking(
 
     query = "SELECT * FROM game WHERE season = ? ORDER BY timestamp"
     season_games = tuple(Game(*row) for row in db.execute(query, (get_season(now),)))
-    defense, offense = get_rating(season_games, players)
+    defense, offense = get_latest_defense_offense(season_games, players)
 
     match data.method:
         case "random":
@@ -111,9 +110,10 @@ async def post_matchmaking(
     # build matchups
     matchmakings = set()
     for (def_a, off_a), (def_b, off_b) in combinations(teams, 2):
-        rat_a = (defense[def_a], offense[off_a])
-        rat_b = (defense[def_b], offense[off_b])
-        win_prob = win_probability(rat_a, rat_b)
+        win_prob = win_probability(
+            (defense[def_a], offense[off_a]), (defense[def_b], offense[off_b])
+        )
+
         # TODO: add whether this is a rank up game
         m = Matchmaking(
             now.timestamp(),

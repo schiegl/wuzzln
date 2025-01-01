@@ -1,13 +1,10 @@
 import math
 import random
-from collections import Counter
 from functools import lru_cache
 from itertools import chain, combinations, permutations
-from typing import Iterable, Mapping, Sequence
+from typing import Mapping, Sequence
 
 import trueskill as ts
-
-from wuzzln.data import Game
 
 type Team[Player] = tuple[Player, Player]
 

@@ -3,7 +3,7 @@ from functools import lru_cache
 
 import trueskill as ts
 
-from wuzzln.data import Game, Rank, Rating
+from wuzzln.data import Game, PlayerId, Rank, Rating
 
 
 def get_rank(trueskill_mean: float) -> Rank:
@@ -77,3 +77,16 @@ def compute_ratings(games_sorted: tuple[Game, ...]) -> list[Rating]:
             )
 
     return hist
+
+
+def get_latest_rating(games_sorted: tuple[Game, ...]) -> dict[PlayerId, Rating]:
+    """Get latest rating.
+
+    :param games_sorted: games sorted by timestamp
+    :return: player to rating mapping
+    """
+    last_rating = {}
+    for r in reversed(compute_ratings(games_sorted)):
+        if r.player not in last_rating:
+            last_rating[r.player] = r
+    return last_rating

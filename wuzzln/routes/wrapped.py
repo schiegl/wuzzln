@@ -12,7 +12,7 @@ from litestar.response import Template
 
 from wuzzln.data import Game, PlayerId, Rating, get_season
 from wuzzln.database import query_game_count
-from wuzzln.rating import compute_ratings
+from wuzzln.rating import compute_ratings, get_latest_rating
 from wuzzln.statistics import (
     compute_1v1_count,
     compute_game_count,
@@ -42,19 +42,6 @@ class Award:
     title: str
     description: str
     players: list[PlayerId]
-
-
-def get_last_rating(games_sorted: tuple[Game, ...]) -> dict[PlayerId, Rating]:
-    """Get latest rating.
-
-    :param games_sorted: games sorted by timestamp
-    :return: player to rating mapping
-    """
-    last_rating = {}
-    for r in reversed(compute_ratings(games_sorted)):
-        if r.player not in last_rating:
-            last_rating[r.player] = r
-    return last_rating
 
 
 def compute_kpis(
@@ -200,7 +187,7 @@ def compute_player_awards(
 
 
 @get("/wrapped")
-async def get_wrapped_page(request: Request, db: sqlite3.Connection, now: datetime) -> Template:
+async def get_wrapped_page(db: sqlite3.Connection, now: datetime) -> Template:
     query = "SELECT * FROM game WHERE season = ? ORDER BY timestamp"
     last_season_games = tuple(Game(*row) for row in db.execute(query, (get_season(now, -1),)))
     llast_season_games = tuple(Game(*row) for row in db.execute(query, (get_season(now, -2),)))
@@ -225,7 +212,7 @@ async def get_wrapped_page(request: Request, db: sqlite3.Connection, now: dateti
 
     # TODO: add awards to player page
 
-    last_rating = get_last_rating(last_season_games)
+    last_rating = get_latest_rating(last_season_games)
     top_3 = sorted(last_rating.items(), key=lambda x: x[1].overall, reverse=True)[:3]
     placing = [Placing(p, r.defense, r.offense) for p, r in top_3]
 
