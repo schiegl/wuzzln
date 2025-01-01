@@ -1,10 +1,10 @@
 import random
 import sqlite3
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from itertools import combinations
-from typing import Annotated, Literal, Sequence
+from typing import Annotated, Iterable, Literal, Sequence
 
 import trueskill as ts
 from litestar import get, post
@@ -17,7 +17,7 @@ from litestar.response import Template
 from wuzzln import toast
 from wuzzln.data import Game, Matchmaking, PlayerId, get_season
 from wuzzln.database import exists
-from wuzzln.matchmaking import build_random_teams, tabu_search, win_probability
+from wuzzln.matchmaking import build_random_teams, tabu_search, variety_2v2, win_probability
 from wuzzln.rating import compute_ratings
 
 
@@ -54,6 +54,22 @@ class MatchmakingTaskDTO:
     probability: Literal["on"] | None = None
 
 
+def get_partner_count(games: Iterable[Game]) -> Counter[tuple[PlayerId, PlayerId]]:
+    """Count how often two players played together.
+
+    :param games: games to count from
+    :return: played pair mapping to number of games
+    """
+    return Counter(
+        pair
+        for g in games
+        for pair in [
+            (g.defense_a, g.offense_a),
+            (g.defense_b, g.offense_b),
+        ]
+    )
+
+
 @post("/api/matchmaking/create")
 async def post_matchmaking(
     data: Annotated[MatchmakingTaskDTO, Body(media_type=RequestEncodingType.URL_ENCODED)],
@@ -80,9 +96,17 @@ async def post_matchmaking(
             player_idx = tuple(range(len(players)))
             teams = build_random_teams(player_idx)
         case "fair":
-            teams = tabu_search(defense, offense, k=1)[0]
-        case "quite_fair":
-            teams = random.choice(tabu_search(defense, offense, k=2))
+            if len(players) == 4:
+                player_idx = {p: i for i, p in enumerate(players)}
+                partner_count = {
+                    (player_idx[p1], player_idx[p2]): count
+                    for (p1, p2), count in get_partner_count(season_games).items()
+                    if p1 in player_idx and p2 in player_idx
+                }
+                teams = variety_2v2(defense, offense, partner_count)
+            else:
+                # TODO: remove multiple returns
+                teams = tabu_search(defense, offense, k=1)[0]
 
     # build matchups
     matchmakings = set()

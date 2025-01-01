@@ -4,7 +4,12 @@ from typing import Sequence
 
 import trueskill as ts
 
-from wuzzln.matchmaking import swap_two_players_neighborhood, tabu_search, win_probability
+from wuzzln.matchmaking import (
+    swap_two_players_neighborhood,
+    tabu_search,
+    variety_2v2,
+    win_probability,
+)
 
 
 def as_rating(mus: Sequence[float | int], sigma: float = 0.001) -> list[ts.Rating]:
@@ -97,3 +102,14 @@ def test_tabu_search_ordered_solution():
         # k is not exact at the moment
         assert 1 < len(avg_devs) <= 4
         assert sorted(avg_devs) == avg_devs
+
+
+def test_variety_2v2_skipping_for_less_common():
+    # 0 must play defense and can play with any of the remaining 3
+    # but 0 already played too much with 1 and 2
+    defense = as_rating([9, 9, 9, 9])
+    offense = as_rating([0, 9, 9, 9])
+    partner_count = {(0, 1): 99, (0, 2): 99}
+
+    teams = variety_2v2(defense, offense, partner_count)
+    assert teams & {(0, 3)}

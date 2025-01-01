@@ -1,10 +1,13 @@
 import math
 import random
+from collections import Counter
 from functools import lru_cache
-from itertools import chain, combinations
-from typing import Sequence
+from itertools import chain, combinations, permutations
+from typing import Iterable, Mapping, Sequence
 
 import trueskill as ts
+
+from wuzzln.data import Game
 
 type Team[Player] = tuple[Player, Player]
 
@@ -51,6 +54,46 @@ def win_probability(team_a: Team[ts.Rating], team_b: Team[ts.Rating]) -> float:
     denominator = math.sqrt(size * ts.BETA**2 + sum_sigma)
     ts_env = ts.global_env()
     return ts_env.cdf(delta_mu / denominator)
+
+
+def variety_2v2(
+    defense: Sequence[ts.Rating],
+    offense: Sequence[ts.Rating],
+    partner_count: Mapping[Team[int], int],
+    draw_prob_diff: float = 0.1,
+) -> set[Team[int]]:
+    """Find fairest team assignments, but choose less fair if it's less common.
+
+    :param defense: defense ratings for all players (n)
+    :param offense: offense ratings for all players (n)
+    :param games: games to derive pairing counts from
+    :param draw_prob_diff: maximum downgrade of draw probability to allow
+    :return: fair team assignments
+    """
+    if len(defense) != len(offense):
+        raise ValueError("Each player must have defense and offense rating")
+    elif len(defense) != 4:
+        raise NotImplementedError("Only for players allowed")
+
+    # if we have more than 4 then we need to average game quality across solution
+    # also currently computing twice (once for each side)
+    solutions: list[tuple[float, set[Team[int]]]] = []
+    for d1, o1, d2, o2 in permutations(range(4), 4):
+        draw_prob: float = ts.quality([(defense[d1], offense[o1]), (defense[d2], offense[o2])])
+        solutions.append((draw_prob, {(d1, o1), (d2, o2)}))
+
+    sorted_solutions = sorted(solutions, key=lambda x: x[0], reverse=True)
+
+    best_draw_prob, best_teams = sorted_solutions[0]
+    cur_partner_count = sum(partner_count.get(t, 0) for t in best_teams)
+    for draw_prob, teams in sorted_solutions[1:]:
+        if best_draw_prob - draw_prob > draw_prob_diff:
+            break
+        # next best fair teams which are less common
+        if sum(partner_count.get(t, 0) for t in teams) < cur_partner_count:
+            return teams
+
+    return best_teams
 
 
 def swap_two_players_neighborhood[P](solution: Solution[P]) -> list[Solution[P]]:
