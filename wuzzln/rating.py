@@ -47,23 +47,25 @@ def compute_ratings(games_sorted: tuple[Game, ...]) -> list[Rating]:
         def_rat[def_b] = def_b_rat
         off_rat[off_b] = off_b_rat
 
-        t = g.timestamp
-        s = g.season
         players_ratings = [
             (def_a, def_a_rat, off_rat[def_a]),
-            (off_a, def_rat[off_a], off_a_rat),
             (def_b, def_b_rat, off_rat[def_b]),
-            (off_b, def_rat[off_b], off_b_rat),
         ]
+        # avoid duplicate ratings in case 1v1 game
+        if def_a != off_a:
+            players_ratings.append((off_a, def_rat[off_a], off_a_rat))
+        if def_b != off_b:
+            players_ratings.append((off_b, def_rat[off_b], off_b_rat))
+
         for player, pdr, por in players_ratings:
             pd_skill = ts.expose(pdr)
             po_skill = ts.expose(por)
             p_skill = (pd_skill + po_skill) / 2
             hist.append(
                 Rating(
-                    s,
+                    g.season,
                     player,
-                    t,
+                    g.timestamp,
                     p_skill,
                     pd_skill,
                     pdr.mu,
