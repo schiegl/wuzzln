@@ -7,6 +7,7 @@ from typing import Mapping
 
 from litestar import Request, get
 from litestar.datastructures import Cookie
+from litestar.exceptions import NotFoundException
 from litestar.response import Template
 
 from wuzzln.data import Game, PlayerId, Rating, get_season
@@ -109,7 +110,7 @@ def compute_kpis(
         Kpi(
             "Table underside inspections",
             crawl_count,
-            round((crawl_count - prev_crawl_count) / prev_crawl_count, 2),
+            (crawl_count - prev_crawl_count) / prev_crawl_count if prev_crawl_count != 0 else 0,
         )
     )
 
@@ -204,11 +205,12 @@ async def get_wrapped_page(request: Request, db: sqlite3.Connection, now: dateti
     last_season_games = tuple(Game(*row) for row in db.execute(query, (get_season(now, -1),)))
     llast_season_games = tuple(Game(*row) for row in db.execute(query, (get_season(now, -2),)))
 
-    pre_last_season_game_count = query_game_count(
-        db, last_season_games[0].timestamp if last_season_games else now.timestamp()
-    )
-    pre_llast_season_game_count = query_game_count(
-        db, llast_season_games[0].timestamp if llast_season_games else now.timestamp()
+    if not last_season_games:
+        raise NotFoundException("There were no games played in this time period")
+
+    pre_last_season_game_count = query_game_count(db, last_season_games[0].timestamp)
+    pre_llast_season_game_count = (
+        query_game_count(db, llast_season_games[0].timestamp) if llast_season_games else Counter()
     )
     awards = compute_player_awards(
         last_season_games, llast_season_games, pre_last_season_game_count
@@ -229,7 +231,8 @@ async def get_wrapped_page(request: Request, db: sqlite3.Connection, now: dateti
 
     player_name = dict(db.execute("SELECT id, name FROM player"))
     row = db.execute(
-        "SELECT count(distinct season) FROM game WHERE timestamp < ?", (now.timestamp(),)
+        "SELECT count(distinct season) FROM game WHERE timestamp <= ?",
+        (last_season_games[0].timestamp,),
     ).fetchone()
     season_count = row[0] if row else 0
 
