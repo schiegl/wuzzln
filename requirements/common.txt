@@ -1,2 +1,3 @@
 trueskill==0.4.5
 litestar[standard]==2.12.1
+cachetools==5.5.0
