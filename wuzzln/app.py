@@ -17,6 +17,7 @@ from wuzzln.routes.games import get_games_page
 from wuzzln.routes.leaderboard import get_leaderboard_page
 from wuzzln.routes.matchmaking import get_matchmaking_page, post_matchmaking
 from wuzzln.routes.player import get_player_page
+from wuzzln.routes.robots import get_robots_txt
 from wuzzln.routes.rules import get_rules_page
 from wuzzln.routes.wrapped import get_wrapped_page
 from wuzzln.utils import is_season_start, pretty_timestamp
@@ -63,6 +64,7 @@ app = Litestar(
         get_rules_page,
         get_player_page,
         get_wrapped_page,
+        get_robots_txt,
     ],
     static_files_config=[
         StaticFilesConfig(directories=["assets/img"], path="img"),
@@ -71,7 +73,6 @@ app = Litestar(
         StaticFilesConfig(directories=["assets/font"], path="font"),
     ],
     compression_config=CompressionConfig(backend="gzip"),
-    # middleware=[RateLimitConfig(("second", 20)).middleware],
     template_config=TemplateConfig(
         directory=Path("templates"),
         engine=JinjaTemplateEngine,
