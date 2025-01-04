@@ -47,6 +47,10 @@
 	.games .delete-btn:hover {
 		color: var(--primary);
 	}
+
+	.games .border-left {
+		border-left: 4px solid var(--fg-green);
+	}
 </style>
 
 <table class="games">
@@ -62,7 +66,7 @@
 	<tbody hx-target="closest tr" hx-swap="delete">
 	  {% for g in games %}
 		<tr {% if g.score_a == 0 or g.score_b == 0 %}style="background: var(--primary-softer)"{% endif %}>
-			<td>{{ g.timestamp|pretty_timestamp(now()) }}</td>
+			<td {% if g.timestamp > show_new_game_timestamp %}class="border-left"{% endif %}>{{ g.timestamp|pretty_timestamp(now()) }}</td>
 			<td class="team">
 				{% if g.defense_a == g.offense_a %}
 				<div><i class="ph ph-user"></i> <a href="/player/{{ g.defense_a }}">{{ player_name[g.defense_a] }}</a></div>
@@ -81,7 +85,7 @@
 			</td>
 			<td>{{ g.score_a }} : {{ g.score_b }}</td>
 			<td>
-				{% if g.timestamp > delete_timestamp_threshold %}
+				{% if g.timestamp > show_delete_timestamp %}
 					<button class="ph ph-trash delete-btn" hx-delete="/api/game/delete/{{ g.id }}"></button>
 				{% endif %}
 			</td>

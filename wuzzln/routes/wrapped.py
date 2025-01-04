@@ -5,12 +5,12 @@ from datetime import datetime
 from random import randint, random
 from typing import Mapping
 
-from litestar import Request, get
+from litestar import get
 from litestar.datastructures import Cookie
 from litestar.exceptions import NotFoundException
 from litestar.response import Template
 
-from wuzzln.data import Game, PlayerId, Rating, get_season
+from wuzzln.data import Game, PlayerId, get_season
 from wuzzln.database import query_game_count
 from wuzzln.rating import compute_ratings, get_latest_rating
 from wuzzln.statistics import (
@@ -233,6 +233,6 @@ async def get_wrapped_page(db: sqlite3.Connection, now: datetime) -> Template:
             "awards": awards,
         },
         cookies=[
-            Cookie("wuzzln-wrapped", value=get_season(now), secure=True, max_age=3600 * 24 * 7)
+            Cookie("wuzzln-wrapped", value=get_season(now), secure=True, max_age=3600 * 24 * 30)
         ],
     )
