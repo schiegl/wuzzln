@@ -1,6 +1,5 @@
 import sqlite3
 from collections import deque
-from datetime import datetime
 from pathlib import Path
 
 from litestar import Litestar
@@ -20,7 +19,7 @@ from wuzzln.routes.player import get_player_page
 from wuzzln.routes.robots import get_robots_txt
 from wuzzln.routes.rules import get_rules_page
 from wuzzln.routes.wrapped import get_wrapped_page
-from wuzzln.utils import is_season_start, pretty_timestamp
+from wuzzln.utils import get_datetime_func, is_season_start, pretty_timestamp
 
 logging_config = LoggingConfig(
     root={"level": "DEBUG"},
@@ -34,15 +33,11 @@ async def get_database() -> sqlite3.Connection:
     return sqlite3.connect("database/db.sqlite", detect_types=1)
 
 
-def get_current_datetime():
-    """Get current time."""
-    return datetime.now()
+get_now = get_datetime_func("NOW")
 
 
 def register_template_callables(tmpl_engine: JinjaTemplateEngine):
-    tmpl_engine.register_template_callable(
-        key="now", template_callable=lambda ctx: get_current_datetime()
-    )
+    tmpl_engine.register_template_callable(key="now", template_callable=lambda ctx: get_now())
     tmpl_engine.engine.tests["season_start"] = is_season_start
     tmpl_engine.engine.filters["pretty_timestamp"] = pretty_timestamp
 
@@ -50,7 +45,7 @@ def register_template_callables(tmpl_engine: JinjaTemplateEngine):
 app = Litestar(
     dependencies={
         "db": Provide(get_database),
-        "now": Provide(get_current_datetime, sync_to_thread=True),
+        "now": Provide(get_now, sync_to_thread=True),
     },
     state=State({"matchmakings": deque(maxlen=10)}),
     route_handlers=[

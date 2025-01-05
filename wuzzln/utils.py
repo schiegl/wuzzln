@@ -1,4 +1,6 @@
+import os
 from datetime import datetime, timedelta
+from typing import Callable
 
 from wuzzln.data import get_season
 
@@ -48,3 +50,16 @@ def pretty_timestamp(timestamp: float, now: datetime | None = None) -> str:
             unit = "second"
 
         return f"{total:.0f} {unit}{'s' if total != 1 else ''} ago"
+
+
+def get_datetime_func(env_var: str) -> Callable[[], datetime]:
+    """Get function which tells current time.
+
+    :param env_var: if time is supplied from environment
+    :return: datetime function
+    """
+    if fake_time := os.environ.get(env_var):
+        fake_dt = datetime.strptime(fake_time, "%Y-%m-%d %H:%M")
+        return lambda: fake_dt
+    else:
+        return datetime.now
