@@ -17,7 +17,7 @@ async def get_games_page(request: Request, db: sqlite3.Connection, now: datetime
     ten_min_ago = (now - timedelta(minutes=10)).timestamp()
 
     try:
-        last_visit = float(request.cookies.get("wuzzln-games-last-check"))
+        last_visit = float(request.cookies.get("wuzzln-games-last-check"))  # type: ignore
     except TypeError:
         last_visit = games[-1].timestamp - 1 if games else now.timestamp()
 
@@ -33,7 +33,7 @@ async def get_games_page(request: Request, db: sqlite3.Connection, now: datetime
         cookies=[
             Cookie(
                 "wuzzln-games-last-check",
-                value=now.timestamp(),
+                value=str(now.timestamp()),
                 secure=True,
                 max_age=3600 * 24 * 90,
             )

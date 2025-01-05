@@ -49,7 +49,7 @@
 	}
 
 	.games .border-left {
-		border-left: 4px solid var(--fg-green);
+		border-left: 4px solid var(--primary-soft);
 	}
 </style>
 
@@ -66,7 +66,9 @@
 	<tbody hx-target="closest tr" hx-swap="delete">
 	  {% for g in games %}
 		<tr {% if g.score_a == 0 or g.score_b == 0 %}style="background: var(--primary-softer)"{% endif %}>
-			<td {% if g.timestamp > show_new_game_timestamp %}class="border-left"{% endif %}>{{ g.timestamp|pretty_timestamp(now()) }}</td>
+			<td {% if g.timestamp > show_new_game_timestamp %}class="border-left"{% endif %}>
+				{{ g.timestamp|pretty_timestamp(now()) }}
+			</td>
 			<td class="team">
 				{% if g.defense_a == g.offense_a %}
 				<div><i class="ph ph-user"></i> <a href="/player/{{ g.defense_a }}">{{ player_name[g.defense_a] }}</a></div>
