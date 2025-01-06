@@ -26,6 +26,7 @@ def exists(db: sqlite3.Connection, table: str, column: str, value) -> bool:
     return row[0] == 1
 
 
+# TODO: it's weird that game count stat is here
 @cached(LRUCache(5), key=lambda _, timestamp: timestamp)
 def query_game_count(db: sqlite3.Connection, timestamp: float) -> Counter[PlayerId]:
     """Get all games played before a timestamp.

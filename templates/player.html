@@ -4,72 +4,54 @@
 <title>wuzzln - {{ name }}</title>
 
 <style>
-	.profile {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		row-gap: 12px;
-	}
+section {
+	margin-bottom: 50px;
+	width: 100%;
+}
 
-	h1 {
-		margin: 0 0 40px 0;
-	}
-
-	.level {
-		background: var(--bg-softer);
-		width: 160px;
-		height: 140px;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		row-gap: 5px;
-		border-radius: var(--radius);
-	}
-
-	.level .title {
-		color: var(--fg-softer);
-		cursor: help;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		gap: 5px;
-	}
-
-	.level .value {
-		font-size: 2rem;
-	}
-
+h2 {
+	margin-bottom: 30px;
+}
 </style>
 
 {% endblock head %}
 
 {% block main %}
 
-<section class="profile">
-	<img style="height: 64px" src="/img/rank/{{ rank.name|lower }}.png">
-	<h1>{{ name }}</h1>
+<section>
+	<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 7px">
+		<img style="height: 64px" src="/img/rank/{{ rank.name|lower }}.png">
+		<span style="font-weight: medium; font-size: 1.7rem">{{ name }}</span>
+	</div>
+	<div style="display: flex; flex-direction: row; justify-content: center; gap: 15px;">
+		<span style="display: flex; flex-direction: row; align-items: center; gap: 2px;"><i class="ph ph-shield"></i>{{ defense_skill|round(1) }}</span>
+		<span style="display: flex; flex-direction: row; align-items: center; gap: 2px;"><i class="ph ph-sword"></i>{{ offense_skill|round(1) }}</span>
+	</div>
+</section>
 
-	<div style="display: flex; flex-direction: row; justify-content: center; gap: 20px; flex-wrap: wrap;">
-		<div class="level">
-			<span class="value">{{ defense_skill|round(1) }}</span>
-			<span class="title" data-tooltip="Current defense rating">
-				<i class="ph ph-shield"></i> Defense
-			</span>
-		</div>
-		<div class="level">
-			<span class="value">{{ offense_skill|round(1) }}</span>
-			<span class="title" data-tooltip="Current offense rating">
-				<i class="ph ph-sword"></i> Offense
-			</span>
-		</div>
-		<div class="level">
-			<span class="value">{{ season_games }}</span>
-			<span class="title" data-tooltip="Number of games this season">
-				<i class="ph ph-soccer-ball"></i> Season Games
-			</span>
-		</div>
+<section>
+	<h2><i class="ph ph-medal"></i> Season Challenges</h2>
+	<div style="display: grid; gap: 30px; grid-template-columns: 1fr 1fr">
+		{% for c in challenges %}
+			<div style="display: flex; flex-direction: column; gap: 10px;">
+				<div style="display: flex; flex-direction: row; gap: 10px; align-items: center">
+					<div style="font-size: 1.5rem">{{ c.emoji }}</div>
+					<div>{{ c.title }}</div>
+				</div>
+				<div style="display: flex; flex-direction: column">
+					{% if c.percentage == 100 %}
+					<div style="height: 10px; background: var(--fg-success); border-radius: var(--radius)"></div>
+					{% else %}
+					<div style="height: 10px; background: var(--primary-softest); border-radius: var(--radius)">
+						<div style="background: var(--primary-soft); width: {{ c.percentage }}%; height: 100%; border-radius: var(--radius)"></div>
+					</div>
+					{% endif %}
+					<div style="color: var(--fg-soft); padding: 8px 0 0 4px; font-size: 0.9rem">
+						{{ c.absolute }}/{{ c.goal }}
+					</div>
+				</div>
+			</div>
+		{% endfor %}
 	</div>
 </section>
 
