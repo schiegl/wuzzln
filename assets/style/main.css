@@ -1,27 +1,28 @@
 :root {
-	--bg: #fff;
-	--bg-soft: #f6f6f6;
-	--bg-softer: #fafafa;
+	--bg: #FFF;
+	--bg-soft: #F6F6F6;
+	--bg-softer: #FAFAFA;
 	--fg: #000;
 	--fg-soft: #333;
 	--fg-softer: #666;
-	--fg-softest: #aaa;
-	--border: #ccc;
-	--primary: #ff5400;
-	--primary-soft: #ff540099;
-	--primary-softer: #ff540022;
-	--fg-green: #3b752f;
-	--fg-red: #a63f3f;
+	--fg-softest: #AAA;
+	--border: #CCC;
+	--primary: #FF5400FF;
+	--primary-soft: #FF874C;
+	--primary-softer: #FFB794;
+	--primary-softest: #FFE0D1;
+	--fg-green: #3B752F;
+	--fg-red: #A63F3F;
 	--radius: 6px;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root {
 		--bg: #111;
-		--bg-soft: #1a1a1a;
+		--bg-soft: #1A1A1A;
 		--bg-softer: #161616;
-		--fg: #ddd;
-		--fg-soft: #aaa;
+		--fg: #DDD;
+		--fg-soft: #AAA;
 		--fg-softer: #888;
 		--fg-softest: #555;
 		--border: #555;
@@ -90,7 +91,7 @@ button:hover {
 
 button:active {
 	color: var(--primary);
-	background-color: var(--primary-softer);
+	background-color: var(--primary-softest);
 }
 
 .icon-btn {

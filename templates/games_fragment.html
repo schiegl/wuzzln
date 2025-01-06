@@ -65,7 +65,7 @@
 	</thead>
 	<tbody hx-target="closest tr" hx-swap="delete">
 	  {% for g in games %}
-		<tr {% if g.score_a == 0 or g.score_b == 0 %}style="background: var(--primary-softer)"{% endif %}>
+		<tr {% if g.score_a == 0 or g.score_b == 0 %}style="background: rgb(from var(--primary) r g b / 10%)"{% endif %}>
 			<td {% if g.timestamp > show_new_game_timestamp %}class="border-left"{% endif %}>
 				{{ g.timestamp|pretty_timestamp(now()) }}
 			</td>
