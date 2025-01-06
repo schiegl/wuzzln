@@ -60,7 +60,7 @@ def build_leaderboard(
             else:
                 cur_rat[r.player] = r
 
-    leaderboard = {}
+    leaderboard: dict[PlayerId, LeaderboardEntry] = {}
     sorted_rat = sorted(cur_rat.items(), key=lambda x: x[1].overall, reverse=True)
     for p, r in sorted_rat:
         leaderboard[p] = LeaderboardEntry(
@@ -101,7 +101,11 @@ def build_leaderboard(
             leaderboard[player].badges.append(badge)
 
     if crawl_count := compute_zero_score_count(games_sorted, prior_game_count, "loss"):
-        player, count = crawl_count.most_common(1)[0]
+        player, count = sorted(
+            crawl_count.most_common(5),
+            key=lambda x: (x[1], leaderboard[x[0]].skill_all if x[0] in leaderboard else 0),
+            reverse=True,
+        )[0]
         badge = Badge("🩸", f"Knee Bleeder: Inspected the underside of the table {count} times")
         leaderboard[player].badges.append(badge)
 
