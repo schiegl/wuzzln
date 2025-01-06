@@ -8,8 +8,8 @@ from litestar.response import Template
 from wuzzln.data import Game, get_season
 
 
-@get("/games")
-async def get_games_page(request: Request, db: sqlite3.Connection, now: datetime) -> Template:
+@get("/history")
+async def get_history_page(request: Request, db: sqlite3.Connection, now: datetime) -> Template:
     season = get_season(now)
     query = "SELECT * FROM game WHERE timestamp < ? AND season = ? ORDER BY timestamp DESC"
     games = [Game(*row) for row in db.execute(query, (now.timestamp(), season))]
@@ -17,12 +17,12 @@ async def get_games_page(request: Request, db: sqlite3.Connection, now: datetime
     ten_min_ago = (now - timedelta(minutes=10)).timestamp()
 
     try:
-        last_visit = float(request.cookies.get("wuzzln-games-last-check"))  # type: ignore
+        last_visit = float(request.cookies.get("wuzzln-history-last-check"))  # type: ignore
     except TypeError:
         last_visit = games[-1].timestamp - 1 if games else now.timestamp()
 
     return Template(
-        "games.html",
+        "history.html",
         context={
             "games": games,
             "player_name": player_name,
@@ -32,7 +32,7 @@ async def get_games_page(request: Request, db: sqlite3.Connection, now: datetime
         },
         cookies=[
             Cookie(
-                "wuzzln-games-last-check",
+                "wuzzln-history-last-check",
                 value=str(now.timestamp()),
                 secure=True,
                 max_age=3600 * 24 * 90,

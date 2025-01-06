@@ -12,7 +12,7 @@ from litestar.static_files.config import StaticFilesConfig
 from litestar.template import TemplateConfig
 
 from wuzzln.routes.add import add_game, delete_game, get_add_game_page
-from wuzzln.routes.games import get_games_page
+from wuzzln.routes.history import get_history_page
 from wuzzln.routes.leaderboard import get_leaderboard_page
 from wuzzln.routes.matchmaking import get_matchmaking_page, post_matchmaking
 from wuzzln.routes.player import get_player_page
@@ -55,7 +55,7 @@ app = Litestar(
         delete_game,
         get_matchmaking_page,
         post_matchmaking,
-        get_games_page,
+        get_history_page,
         get_rules_page,
         get_player_page,
         get_wrapped_page,
