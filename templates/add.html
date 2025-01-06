@@ -84,6 +84,7 @@
 {% block main %}
 
 <form hx-post="/api/game/create">
+	<input type="hidden" name="id" id="id">
 	<div class="game-entry-container">
 		<div class="game-entry-side">
 			<i class="ph-fill-if-dark ph-users" style="font-size: 48px; text-align: center;"></i>
@@ -183,7 +184,8 @@
 	const score_a = document.getElementById("score_a");
 	const score_b = document.getElementById("score_b");
 
-	function setMatch(def_a, off_a, def_b, off_b) {
+	function setMatch(id, def_a, off_a, def_b, off_b) {
+		document.getElementById("id").value = id
 		defense_a.setChoiceByValue(def_a);
 		offense_a.setChoiceByValue(off_a);
 		defense_b.setChoiceByValue(def_b);

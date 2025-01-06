@@ -40,7 +40,7 @@
 		<div class="match"
 			{% if on_click %}
 				style="cursor: pointer"
-				onclick="{{ on_click }}('{{ m.defense_a }}', '{{ m.offense_a }}', '{{ m.defense_b }}', '{{ m.offense_b }}')"
+			onclick="{{ on_click }}('{{ m.id }}', '{{ m.defense_a }}', '{{ m.offense_a }}', '{{ m.defense_b }}', '{{ m.offense_b }}')"
 			{% endif %}
 		>
 			{% if show_probability %}

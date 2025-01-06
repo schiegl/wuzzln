@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from itertools import combinations
 from typing import Annotated, Iterable, Literal, Sequence
+from uuid import uuid4
 
 import trueskill as ts
 from litestar import get, post
@@ -116,6 +117,7 @@ async def post_matchmaking(
 
         # TODO: add whether this is a rank up game
         m = Matchmaking(
+            str(uuid4()),
             now.timestamp(),
             players[def_a],
             players[off_a],

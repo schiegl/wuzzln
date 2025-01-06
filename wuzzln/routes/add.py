@@ -27,6 +27,7 @@ async def get_add_game_page(
 
 @dataclass
 class GameDTO:
+    id: str | None
     defense_a: PlayerId
     offense_a: PlayerId
     defense_b: PlayerId
@@ -72,19 +73,22 @@ async def add_game(
         if not exists(db, "player", "id", p):
             return toast.error("Unknown player")
 
-    game = Game(
-        str(uuid4()),
-        now.timestamp(),
-        "org",  # FIXME: organization placeholder
-        get_season(now),
-        def_a,
-        off_a,
-        def_b,
-        off_b,
-        g.score_a,
-        g.score_b,
-    )
-    insert(db, game)
-    db.commit()
+    try:
+        game = Game(
+            g.id or str(uuid4()),
+            now.timestamp(),
+            "org",  # FIXME: organization placeholder
+            get_season(now),
+            def_a,
+            off_a,
+            def_b,
+            off_b,
+            g.score_a,
+            g.score_b,
+        )
+        insert(db, game)
+        db.commit()
+    except sqlite3.IntegrityError:
+        return toast.error("Game already exists in database")
 
     return toast.success("Game successfully added")

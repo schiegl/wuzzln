@@ -55,6 +55,7 @@ class Rating(NamedTuple):
 
 
 class Matchmaking(NamedTuple):
+    id: str
     timestamp: Timestamp
     defense_a: PlayerId
     offense_a: PlayerId
