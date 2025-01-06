@@ -151,7 +151,7 @@
 		<div class="kpi">
 			<div class="value">
 				<div class="absolute">{{ kpi.value }}</div>
-				<div class="diff" style="color: var(--fg-{% if kpi.diff_relative < 0 %}red{% else %}green{% endif %}">
+				<div class="diff" style="color: var({% if kpi.diff_relative < 0 %}--fg-failure{% else %}--fg-success{% endif %}">
 					<i class="ph ph-trend-{% if kpi.diff_relative < 0 %}down{% else %}up{% endif %}"></i>
 					{% if kpi.diff_relative > 0 %}+{% else %}-{% endif %}{{ (kpi.diff_relative*100)|round|int|abs }}%
 				</div>

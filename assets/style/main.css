@@ -11,8 +11,8 @@
 	--primary-soft: #FF874C;
 	--primary-softer: #FFB794;
 	--primary-softest: #FFE0D1;
-	--fg-green: #3B752F;
-	--fg-red: #A63F3F;
+	--fg-success: #3B752F;
+	--fg-failure: #A63F3F;
 	--radius: 6px;
 }
 

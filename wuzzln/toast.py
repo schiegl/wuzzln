@@ -10,7 +10,7 @@ def error(message: str) -> Template:
             "icon": "warning-circle",
             "message": message,
             "font_color": "#fff",
-            "background": "#f44",
+            "background": "var(--fg-failure)",
         },
     )
 
@@ -36,6 +36,6 @@ def success(message: str) -> Template:
             "icon": "check-circle",
             "message": message,
             "font_color": "#fff",
-            "background": "#4caf50",
+            "background": "var(--fg-success)",
         },
     )
