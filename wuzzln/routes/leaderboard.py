@@ -89,7 +89,7 @@ def build_leaderboard(
         for e in leaderboard.values():
             total_games = game_count[e.player] + prior_game_count[e.player]
             if total_games < 25:
-                badge = Badge("🐣", f"Kücken: Practiced {total_games} times so far")
+                badge = Badge("🐣", f"Chick: Practiced {total_games} times so far")
                 e.badges.append(badge)
 
     ts_2w_ago = (now - timedelta(weeks=2)).timestamp()
