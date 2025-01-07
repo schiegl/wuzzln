@@ -54,25 +54,24 @@ def get_season_challenges(player: PlayerId, games_sorted: tuple[Game, ...]):
     win_streak = 0
     max_win_streak = 0
     for g in games_sorted:
-        if player in {g.defense_a, g.defense_b}:
-            if g.defense_a != g.offense_a:
-                defense_wins += 1
-        elif player in {g.offense_a, g.offense_b}:
-            if g.defense_b != g.offense_b:
-                offense_wins += 1
-        else:
-            continue
+        if player in {g.defense_a, g.offense_a, g.defense_b, g.offense_b}:
+            if g.score_a > g.score_b and player in {g.defense_a, g.offense_a}:
+                win_streak += 1
+                if g.defense_a != g.offense_a:
+                    defense_wins += player == g.defense_a
+                    offense_wins += player == g.offense_a
+            elif g.score_b > g.score_a and player in {g.defense_b, g.offense_b}:
+                win_streak += 1
+                if g.defense_b != g.offense_b:
+                    defense_wins += player == g.defense_b
+                    offense_wins += player == g.offense_b
+            else:
+                win_streak = 0
 
-        if g.score_a > g.score_b and player in {g.defense_a, g.offense_a}:
-            win_streak += 1
-        elif g.score_b > g.score_a and player in {g.defense_b, g.offense_b}:
-            win_streak += 1
-        else:
-            win_streak = 0
-        if win_streak > max_win_streak:
-            max_win_streak = win_streak
+            if win_streak > max_win_streak:
+                max_win_streak = win_streak
 
-        unique_players |= {g.defense_a, g.offense_a, g.defense_b, g.offense_b}
+            unique_players |= {g.defense_a, g.offense_a, g.defense_b, g.offense_b}
 
     achievements = [
         Challenge("🛡️", "Win 25 games as defense", defense_wins, 25),
