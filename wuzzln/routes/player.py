@@ -5,11 +5,10 @@ from typing import Mapping
 
 from litestar import get
 from litestar.exceptions import NotFoundException
-from litestar.response import Response
 from litestar.response.template import Template
 
 from wuzzln.data import Game, PlayerId, get_season
-from wuzzln.database import exists, query_game_count
+from wuzzln.database import exists
 from wuzzln.rating import get_latest_rating, get_rank
 from wuzzln.statistics import compute_game_count, compute_zero_score_count
 
@@ -82,7 +81,7 @@ def get_season_challenges(player: PlayerId, games_sorted: tuple[Game, ...]):
 
 
 @get("/player/{id: str}")
-async def get_player_page(id: PlayerId, db: sqlite3.Connection, now: datetime) -> Response:
+async def get_player_page(id: PlayerId, db: sqlite3.Connection, now: datetime) -> Template:
     player = id
     if not exists(db, "player", "id", player):
         raise NotFoundException("Player does not exist")

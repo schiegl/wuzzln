@@ -62,4 +62,4 @@ def get_datetime_func(env_var: str) -> Callable[[], datetime]:
         fake_dt = datetime.strptime(fake_time, "%Y-%m-%d %H:%M")
         return lambda: fake_dt
     else:
-        return datetime.now
+        return lambda: datetime.now()
