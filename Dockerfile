@@ -7,7 +7,7 @@ RUN useradd -m me
 USER me
 WORKDIR /home/me
 
-COPY uv.lock pyproject.toml .
+COPY uv.lock pyproject.toml ./
 COPY --chown=me wuzzln/ wuzzln/
 COPY --chown=me templates/ templates/
 COPY --chown=me assets/ assets/
