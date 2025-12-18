@@ -8,9 +8,9 @@ USER me
 WORKDIR /home/me
 
 COPY uv.lock pyproject.toml ./
-RUN uv sync --no-dev
+RUN uv sync --no-dev --locked --no-editable --compile-bytecode
 COPY --chown=me wuzzln/ wuzzln/
 COPY --chown=me templates/ templates/
 COPY --chown=me assets/ assets/
 
-CMD uv run --no-dev litestar --app wuzzln.app:app run --port 8501 --host 0.0.0.0
+CMD uv run --no-dev --no-sync --no-cache litestar --app wuzzln.app:app run --port 8501 --host 0.0.0.0
