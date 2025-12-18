@@ -8,6 +8,7 @@ USER me
 WORKDIR /home/me
 
 COPY uv.lock pyproject.toml ./
+RUN uv sync --no-dev
 COPY --chown=me wuzzln/ wuzzln/
 COPY --chown=me templates/ templates/
 COPY --chown=me assets/ assets/
